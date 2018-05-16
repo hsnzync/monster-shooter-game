@@ -5,32 +5,41 @@ class Enemy extends DomObject {
     
     private posy:number
     private posx:number
-    private speed:number
+    private speedx:number
 
-    constructor() {
+    constructor(minWidth: number, maxWidth: number) {
 
-        super("enemy")
-        let w = window.innerWidth
-        let h = window.innerHeight
-        let randPos = Math.floor(Math.random() * w) + 1
+        super(minWidth, maxWidth, "enemy")
+        let randPos = Math.floor(Math.random() * window.innerHeight) + 1
         let randSp = Math.floor(Math.random() * 5) + 1
         
         this.posy = randPos
-        this.posx = w - this.element.clientWidth
-       // this.posx = 100
-        this.speed = randSp
+        this.posx = window.innerWidth - this.element.clientWidth
+        this.speedx = randSp
+    }
+
+    public windowCol() :void {
+
+        if (this.posy < 280 ) {
+            this.speedx *= 0
+            this.posy = window.innerHeight - 280
+        }
+        if (this.posy + this.element.clientHeight > window.innerHeight) {
+            this.speedx *= 0
+        }
     }
 
     public update():void {
         this.element.style.transform = `translate(${this.posx}px, ${this.posy}px) scaleX(-1)`
         
-        this.posx -= this.speed
-
+        this.posx -= this.speedx
 
         if(this.posx == -100) {
             this.posx = window.innerWidth - this.element.clientWidth
             Game.getInstance().removeLife()
         }
+
+        this.windowCol()
 
     }
 

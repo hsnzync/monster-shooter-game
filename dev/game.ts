@@ -17,9 +17,9 @@ class Game {
         this.bg = document.getElementsByTagName("background")[0] as HTMLElement
 
         this.enemies = [
-            new Enemy()
+            new Enemy(65, 65)
         ]
-        this.player = new Player()
+        this.player = new Player(65,65)
         this.xPos = 0
 
         this.gameLoop()

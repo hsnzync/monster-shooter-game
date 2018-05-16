@@ -10,33 +10,48 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var DomObject = (function () {
-    function DomObject(element) {
+    function DomObject(minWidth, maxWidth, element) {
+        this.minWidth = 0;
+        this.maxWidth = 0;
+        this.maxHeight = 0;
         this.element = document.createElement(element);
         var foreground = document.getElementsByTagName("foreground")[0];
         foreground.appendChild(this.element);
+        maxWidth -= this.element.clientWidth;
+        this.minWidth = minWidth;
+        this.maxWidth = maxWidth;
+        this.maxHeight = window.innerHeight - this.element.clientHeight;
     }
     return DomObject;
 }());
 var Enemy = (function (_super) {
     __extends(Enemy, _super);
-    function Enemy() {
-        var _this = _super.call(this, "enemy") || this;
-        var w = window.innerWidth;
-        var h = window.innerHeight;
-        var randPos = Math.floor(Math.random() * w) + 1;
+    function Enemy(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "enemy") || this;
+        var randPos = Math.floor(Math.random() * window.innerHeight) + 1;
         var randSp = Math.floor(Math.random() * 5) + 1;
         _this.posy = randPos;
-        _this.posx = w - _this.element.clientWidth;
-        _this.speed = randSp;
+        _this.posx = window.innerWidth - _this.element.clientWidth;
+        _this.speedx = randSp;
         return _this;
     }
+    Enemy.prototype.windowCol = function () {
+        if (this.posy < 280) {
+            this.speedx *= 0;
+            this.posy = window.innerHeight - 280;
+        }
+        if (this.posy + this.element.clientHeight > window.innerHeight) {
+            this.speedx *= 0;
+        }
+    };
     Enemy.prototype.update = function () {
         this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
-        this.posx -= this.speed;
+        this.posx -= this.speedx;
         if (this.posx == -100) {
             this.posx = window.innerWidth - this.element.clientWidth;
             Game.getInstance().removeLife();
         }
+        this.windowCol();
     };
     Enemy.prototype.removeMe = function () {
         console.log("Ouch");
@@ -54,9 +69,9 @@ var Game = (function () {
         this.statusbar = document.getElementsByTagName("bar")[0];
         this.bg = document.getElementsByTagName("background")[0];
         this.enemies = [
-            new Enemy()
+            new Enemy(65, 65)
         ];
-        this.player = new Player();
+        this.player = new Player(65, 65);
         this.xPos = 0;
         this.gameLoop();
     }
@@ -119,12 +134,10 @@ window.addEventListener("load", function () {
 });
 var Player = (function (_super) {
     __extends(Player, _super);
-    function Player() {
-        var _this = _super.call(this, "player") || this;
+    function Player(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "player") || this;
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
-        var w = window.innerWidth;
-        var h = window.innerHeight;
         _this.posy = 400;
         _this.posx = 50;
         _this.speedx = 0;
@@ -134,17 +147,18 @@ var Player = (function (_super) {
     Player.prototype.BoundingBox = function () {
         if (this.posx + this.element.clientWidth > window.innerWidth) {
             this.posx && this.posy == 300;
-            this.speedx *= -1;
+            this.speedx *= 0;
         }
         if (this.posx < 0) {
-            this.posx && this.posy == 300;
-            this.speedx && this.speedy * 1;
+            this.posx = 0;
+            this.speedx && this.speedy * 0;
+            console.log("hit the edge");
         }
-        if (this.posy < 0) {
-            this.speedy *= -1;
+        if (this.posy < 280) {
+            this.speedy *= 0;
         }
         if (this.posy + this.element.clientHeight > window.innerHeight) {
-            this.speedy *= -1;
+            this.speedy *= 0;
         }
     };
     Player.prototype.update = function () {
@@ -154,6 +168,7 @@ var Player = (function (_super) {
         if (this.posx >= window.innerWidth) {
             this.posx = 0;
         }
+        this.BoundingBox();
     };
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {

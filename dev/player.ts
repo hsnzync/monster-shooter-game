@@ -7,54 +7,34 @@ class Player extends DomObject {
     private posx:number
     private posy:number
 
-    constructor() {
-        super("player")
+    constructor(minWidth: number, maxWidth: number) {
+        super(minWidth, maxWidth, "player")
         
         window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
         window.addEventListener("keyup", (e:KeyboardEvent) => this.onKeyUp(e))
-        let w = window.innerWidth
-        let h = window.innerHeight
         
         this.posy = 400
         this.posx = 50
         this.speedx = 0
         this.speedy = 0
     }
-    
-    /*
-    public void BoundingBox(){
-        if (_Position.X + _Texture.Width > _g.GraphicsDevice.Viewport.Width) {
-            _Position = new Vector2 (300, 300);
-            _Speed.X *= -1;
-        }
-        if (_Position.X < 0) {
-            _Position = new Vector2 (300, 300);
-            _Speed *= -1;
-        }
-        if (_Position.Y < 0) {
-            _Speed.Y *= -1;
-        }
 
-        if (_Position.Y + _Texture.Height > _g.GraphicsDevice.Viewport.Height) {
-            _Speed.Y *= -1;
-        }
-    }
-    */
-
-    public BoundingBox() : void {
+    public windowCol() : void {
         if(this.posx + this.element.clientWidth > window.innerWidth) {
             this.posx && this.posy == 300
-            this.speedx *= -1
+            this.speedx *= 0
         }
         if (this.posx < 0) {
-            this.posx && this.posy == 300
-            this.speedx && this.speedy * 1
+            this.posx = 0
+            this.speedx && this.speedy * 0
+            console.log("hit the edge")
         }
-        if (this.posy <0 ) {
-            this.speedy *= -1
+
+        if (this.posy < 280 ) {
+            this.speedy *= 0
         }
         if (this.posy + this.element.clientHeight > window.innerHeight) {
-            this.speedy *= -1
+            this.speedy *= 0
         }
     }
 
@@ -63,11 +43,10 @@ class Player extends DomObject {
         this.posy = this.posy + this.speedy
         this.element.style.transform = `translate(${this.posx}px, ${this.posy}px)`
 
-        
-
         if (this.posx >= window.innerWidth ) {
             this.posx = 0
         }
+        this.windowCol()
     }
 
     
