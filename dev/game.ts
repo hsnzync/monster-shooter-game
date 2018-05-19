@@ -8,7 +8,7 @@ class Game {
     private statusbar:HTMLElement
     private bg:HTMLElement
     private player:Player
-    private enemies:Enemy[]
+    private enemies:Enemy[] = []
     private xPos:number
     
     private constructor() {
@@ -16,9 +16,15 @@ class Game {
         this.statusbar = document.getElementsByTagName("bar")[0] as HTMLElement
         this.bg = document.getElementsByTagName("background")[0] as HTMLElement
 
-        this.enemies = [
-            new Enemy(65, 65)
-        ]
+        // this.enemies = [
+        //     new Slime(65, 65)
+        // ]
+
+        this.enemies.push(
+            new Ghost(65, 65),
+            new Bat(65, 65),
+            new Skeleton(65, 65)
+        )
         this.player = new Player(65,65)
         this.xPos = 0
 
@@ -59,7 +65,7 @@ class Game {
 
     public removeLife(){
         this.destroyed ++
-        console.log("buildings destroyed " + this.destroyed)
+        console.log("life count: " + this.destroyed)
 
         switch (this.destroyed) {
             case 1:
@@ -79,10 +85,17 @@ class Game {
                 break
         }
     }
+
+    // public counter() {
+    //     setTimeout(this.counter, 1000)
+    //     console.log('show at: ' + (this.score++))
+    // }
        
     public scorePoint() {
         this.score ++
         this.textfield.innerHTML = "Score: " + this.score
+
+        //this.counter()
     }
 } 
 

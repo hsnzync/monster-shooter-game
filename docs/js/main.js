@@ -9,8 +9,8 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var DomObject = (function () {
-    function DomObject(minWidth, maxWidth, element) {
+var Enemy = (function () {
+    function Enemy(minWidth, maxWidth, element) {
         this.minWidth = 0;
         this.maxWidth = 0;
         this.maxHeight = 0;
@@ -21,20 +21,15 @@ var DomObject = (function () {
         this.minWidth = minWidth;
         this.maxWidth = maxWidth;
         this.maxHeight = window.innerHeight - this.element.clientHeight;
-    }
-    return DomObject;
-}());
-var Enemy = (function (_super) {
-    __extends(Enemy, _super);
-    function Enemy(minWidth, maxWidth) {
-        var _this = _super.call(this, minWidth, maxWidth, "enemy") || this;
         var randPos = Math.floor(Math.random() * window.innerHeight) + 1;
-        var randSp = Math.floor(Math.random() * 5) + 1;
-        _this.posy = randPos;
-        _this.posx = window.innerWidth - _this.element.clientWidth;
-        _this.speedx = randSp;
-        return _this;
+        var randSp = Math.floor(Math.random() * 7) + 3;
+        this.posy = randPos;
+        this.posx = window.innerWidth - this.element.clientWidth;
+        this.speedx = randSp;
     }
+    Enemy.prototype.boundingBox = function () {
+        return this.element.getBoundingClientRect();
+    };
     Enemy.prototype.windowCol = function () {
         if (this.posy < 280) {
             this.speedx *= 0;
@@ -43,34 +38,27 @@ var Enemy = (function (_super) {
         if (this.posy + this.element.clientHeight > window.innerHeight) {
             this.speedx *= 0;
         }
-    };
-    Enemy.prototype.update = function () {
-        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
-        this.posx -= this.speedx;
-        if (this.posx == -100) {
+        if (this.posx <= 0) {
             this.posx = window.innerWidth - this.element.clientWidth;
+            this.posy = Math.floor(Math.random() * window.innerHeight) + 1;
             Game.getInstance().removeLife();
+            Game.getInstance().scorePoint();
         }
-        this.windowCol();
     };
     Enemy.prototype.removeMe = function () {
         console.log("Ouch");
     };
-    Enemy.prototype.boundingBox = function () {
-        return this.element.getBoundingClientRect();
-    };
     return Enemy;
-}(DomObject));
+}());
 var Game = (function () {
     function Game() {
         this.score = 0;
         this.destroyed = 0;
+        this.enemies = [];
         this.textfield = document.getElementsByTagName("textfield")[0];
         this.statusbar = document.getElementsByTagName("bar")[0];
         this.bg = document.getElementsByTagName("background")[0];
-        this.enemies = [
-            new Enemy(65, 65)
-        ];
+        this.enemies.push(new Ghost(65, 65), new Bat(65, 65), new Skeleton(65, 65));
         this.player = new Player(65, 65);
         this.xPos = 0;
         this.gameLoop();
@@ -104,7 +92,7 @@ var Game = (function () {
     };
     Game.prototype.removeLife = function () {
         this.destroyed++;
-        console.log("buildings destroyed " + this.destroyed);
+        console.log("life count: " + this.destroyed);
         switch (this.destroyed) {
             case 1:
                 this.statusbar.style.backgroundPositionY = "-182px";
@@ -132,19 +120,20 @@ var Game = (function () {
 window.addEventListener("load", function () {
     Game.getInstance();
 });
-var Player = (function (_super) {
-    __extends(Player, _super);
+var Player = (function () {
     function Player(minWidth, maxWidth) {
-        var _this = _super.call(this, minWidth, maxWidth, "player") || this;
+        var _this = this;
+        this.element = document.createElement("player");
+        var foreground = document.getElementsByTagName("foreground")[0];
+        foreground.appendChild(this.element);
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
-        _this.posy = 400;
-        _this.posx = 50;
-        _this.speedx = 0;
-        _this.speedy = 0;
-        return _this;
+        this.posy = 400;
+        this.posx = 50;
+        this.speedx = 0;
+        this.speedy = 0;
     }
-    Player.prototype.BoundingBox = function () {
+    Player.prototype.windowCol = function () {
         if (this.posx + this.element.clientWidth > window.innerWidth) {
             this.posx && this.posy == 300;
             this.speedx *= 0;
@@ -168,7 +157,7 @@ var Player = (function (_super) {
         if (this.posx >= window.innerWidth) {
             this.posx = 0;
         }
-        this.BoundingBox();
+        this.windowCol();
     };
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {
@@ -211,7 +200,7 @@ var Player = (function (_super) {
         return this.element.getBoundingClientRect();
     };
     return Player;
-}(DomObject));
+}());
 var Util = (function () {
     function Util() {
     }
@@ -222,5 +211,69 @@ var Util = (function () {
             b.top <= a.bottom);
     };
     return Util;
+}());
+var Bat = (function (_super) {
+    __extends(Bat, _super);
+    function Bat(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "bat") || this;
+        _this.behavior = new slowBehavior(_this);
+        return _this;
+    }
+    Bat.prototype.update = function () {
+        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
+        this.behavior.performUpdate();
+        this.windowCol();
+    };
+    return Bat;
+}(Enemy));
+var Ghost = (function (_super) {
+    __extends(Ghost, _super);
+    function Ghost(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "ghost") || this;
+        _this.behavior = new fastBehavior(_this);
+        return _this;
+    }
+    Ghost.prototype.update = function () {
+        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
+        this.behavior.performUpdate();
+        this.windowCol();
+    };
+    return Ghost;
+}(Enemy));
+var Skeleton = (function (_super) {
+    __extends(Skeleton, _super);
+    function Skeleton(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "skeleton") || this;
+        _this.behavior = new fastBehavior(_this);
+        return _this;
+    }
+    Skeleton.prototype.update = function () {
+        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
+        this.behavior.performUpdate();
+        this.windowCol();
+    };
+    return Skeleton;
+}(Enemy));
+var fastBehavior = (function () {
+    function fastBehavior(enemy) {
+        this.enemy = enemy;
+        var r = Math.floor(Math.random() * 6) + 3;
+        this.speedx = r;
+    }
+    fastBehavior.prototype.performUpdate = function () {
+        this.enemy.posx -= this.speedx;
+    };
+    return fastBehavior;
+}());
+var slowBehavior = (function () {
+    function slowBehavior(enemy) {
+        this.enemy = enemy;
+        var r = Math.floor(Math.random() * 3) + 1;
+        this.speedx = r;
+    }
+    slowBehavior.prototype.performUpdate = function () {
+        this.enemy.posx -= this.speedx;
+    };
+    return slowBehavior;
 }());
 //# sourceMappingURL=main.js.map

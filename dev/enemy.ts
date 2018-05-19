@@ -1,21 +1,35 @@
-/// <reference path="DomObject" />
+abstract class Enemy {
 
+    protected element: HTMLElement
 
-class Enemy extends DomObject {
-    
-    private posy:number
-    private posx:number
-    private speedx:number
+    public minWidth: number = 0
+    public maxWidth: number = 0
+    public maxHeight: number = 0
 
-    constructor(minWidth: number, maxWidth: number) {
+    public posy:number
+    public posx:number
+    public speedx:number
 
-        super(minWidth, maxWidth, "enemy")
+    constructor(minWidth: number, maxWidth: number, element: string) {
+        this.element = document.createElement(element)
+        let foreground = document.getElementsByTagName("foreground")[0]
+        foreground.appendChild(this.element);
+
+        maxWidth -= this.element.clientWidth
+        this.minWidth = minWidth
+        this.maxWidth = maxWidth
+        this.maxHeight = window.innerHeight - this.element.clientHeight
+
         let randPos = Math.floor(Math.random() * window.innerHeight) + 1
-        let randSp = Math.floor(Math.random() * 5) + 1
+        let randSp = Math.floor(Math.random() * 7) + 3
         
         this.posy = randPos
         this.posx = window.innerWidth - this.element.clientWidth
         this.speedx = randSp
+    }
+
+    public boundingBox() {
+        return this.element.getBoundingClientRect();
     }
 
     public windowCol() :void {
@@ -27,20 +41,13 @@ class Enemy extends DomObject {
         if (this.posy + this.element.clientHeight > window.innerHeight) {
             this.speedx *= 0
         }
-    }
 
-    public update():void {
-        this.element.style.transform = `translate(${this.posx}px, ${this.posy}px) scaleX(-1)`
-        
-        this.posx -= this.speedx
-
-        if(this.posx == -100) {
+        if(this.posx <= 0) {
             this.posx = window.innerWidth - this.element.clientWidth
+            this.posy =  Math.floor(Math.random() * window.innerHeight) + 1
             Game.getInstance().removeLife()
+            Game.getInstance().scorePoint()
         }
-
-        this.windowCol()
-
     }
 
     public removeMe() {
@@ -48,8 +55,6 @@ class Enemy extends DomObject {
         console.log("Ouch")
     }
 
-    public boundingBox() {
-        return this.element.getBoundingClientRect();
-    }
-    
+    abstract update() : void
+
 }

@@ -29,7 +29,7 @@ ui {
 player {
     background-image: url(../images/player.png);
     cursor: pointer;
-    width: 65px;
+    width: 60px;
     height: 65px;
     background-size: 260px;
 }
@@ -51,12 +51,25 @@ textfield {
     transform: translateY(80px);
 }
 
-enemy {
+ghost {
     width: 65px;
     height: 65px;
-    background-size: 260px;
-    background-image: url(../images/enemy.png);
-    cursor: pointer;
+    background-size: 200px;
+    background-image: url(../images/ghost.png);
+}
+
+bat {
+    width: 65px;
+    height: 65px;
+    background-size: 200px;
+    background-image: url(../images/bat.png);
+}
+
+skeleton {
+    width: 65px;
+    height: 65px;
+    background-size: 250px;
+    background-image: url(../images/skeleton.png);
 }
 
 explosion {

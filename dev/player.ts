@@ -1,14 +1,15 @@
-/// <reference path="DomObject" />
-
-class Player extends DomObject {
+class Player {
 
     private speedx:number
     private speedy:number
     private posx:number
     private posy:number
+    private element: HTMLElement
 
     constructor(minWidth: number, maxWidth: number) {
-        super(minWidth, maxWidth, "player")
+        this.element = document.createElement("player")
+        let foreground = document.getElementsByTagName("foreground")[0]
+        foreground.appendChild(this.element);
         
         window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
         window.addEventListener("keyup", (e:KeyboardEvent) => this.onKeyUp(e))
