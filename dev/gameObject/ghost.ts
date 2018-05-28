@@ -14,6 +14,7 @@ class Ghost extends Enemy {
 
         this.behavior.performUpdate()
         this.windowCol()
+
     }
     
 }

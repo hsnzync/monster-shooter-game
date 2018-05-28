@@ -42,7 +42,6 @@ var Enemy = (function () {
             this.posx = window.innerWidth - this.element.clientWidth;
             this.posy = Math.floor(Math.random() * window.innerHeight) + 1;
             Game.getInstance().removeLife();
-            Game.getInstance().scorePoint();
         }
     };
     Enemy.prototype.removeMe = function () {
@@ -53,13 +52,13 @@ var Enemy = (function () {
 var Game = (function () {
     function Game() {
         this.score = 0;
-        this.destroyed = 0;
+        this.damage = 0;
         this.enemies = [];
         this.textfield = document.getElementsByTagName("textfield")[0];
         this.statusbar = document.getElementsByTagName("bar")[0];
         this.bg = document.getElementsByTagName("background")[0];
         this.enemies.push(new Ghost(65, 65), new Bat(65, 65), new Skeleton(65, 65));
-        this.player = new Player(65, 65);
+        this.player = new Player();
         this.xPos = 0;
         this.gameLoop();
     }
@@ -83,7 +82,7 @@ var Game = (function () {
                 this.removeLife();
             }
         }
-        if (this.destroyed < 5) {
+        if (this.damage < 5) {
             requestAnimationFrame(function () { return _this.gameLoop(); });
         }
         else {
@@ -91,9 +90,9 @@ var Game = (function () {
         }
     };
     Game.prototype.removeLife = function () {
-        this.destroyed++;
-        console.log("life count: " + this.destroyed);
-        switch (this.destroyed) {
+        this.damage++;
+        console.log("life count: " + this.damage);
+        switch (this.damage) {
             case 1:
                 this.statusbar.style.backgroundPositionY = "-182px";
                 break;
@@ -113,6 +112,7 @@ var Game = (function () {
     };
     Game.prototype.scorePoint = function () {
         this.score++;
+        console.log(this.score);
         this.textfield.innerHTML = "Score: " + this.score;
     };
     return Game;
@@ -121,7 +121,7 @@ window.addEventListener("load", function () {
     Game.getInstance();
 });
 var Player = (function () {
-    function Player(minWidth, maxWidth) {
+    function Player() {
         var _this = this;
         this.element = document.createElement("player");
         var foreground = document.getElementsByTagName("foreground")[0];
@@ -132,6 +132,7 @@ var Player = (function () {
         this.posx = 50;
         this.speedx = 0;
         this.speedy = 0;
+        var canvas = document.getElementById("demoCanvas");
     }
     Player.prototype.windowCol = function () {
         if (this.posx + this.element.clientWidth > window.innerWidth) {
@@ -162,21 +163,20 @@ var Player = (function () {
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {
             case 37:
-                this.speedx = -5;
-                this.element.style.backgroundPositionX = "-72px";
-                this.element.style.transform = 'scaleX(-1) !important';
+                this.speedx = -3;
                 break;
             case 39:
-                this.speedx = 5;
-                this.element.style.backgroundPositionX = "-72px";
+                this.speedx = 3;
                 break;
             case 38:
-                this.speedy = -5;
-                this.element.style.backgroundPositionX = "-143px";
+                this.speedy = -3;
                 break;
             case 40:
-                this.speedy = 5;
-                this.element.style.backgroundPositionX = "0px";
+                this.speedy = 3;
+                break;
+            case 65:
+                console.log("Fire!");
+                Game.getInstance().scorePoint();
                 break;
         }
     };

@@ -3,13 +3,14 @@ class Game {
     private static instance: Game
 
     private score:number = 0
-    private destroyed:number = 0
+    private damage:number = 0
     private textfield:HTMLElement
     private statusbar:HTMLElement
     private bg:HTMLElement
     private player:Player
     private enemies:Enemy[] = []
     private xPos:number
+
     
     private constructor() {
         this.textfield = document.getElementsByTagName("textfield")[0] as HTMLElement
@@ -25,8 +26,9 @@ class Game {
             new Bat(65, 65),
             new Skeleton(65, 65)
         )
-        this.player = new Player(65,65)
+        this.player = new Player()
         this.xPos = 0
+
 
         this.gameLoop()
     }
@@ -56,7 +58,7 @@ class Game {
             }
         }
         
-        if(this.destroyed < 5) {
+        if(this.damage < 5) {
             requestAnimationFrame(()=>this.gameLoop())
         } else {
             this.textfield.innerHTML = "GAME OVER - Score: " + this.score
@@ -64,10 +66,10 @@ class Game {
     }
 
     public removeLife(){
-        this.destroyed ++
-        console.log("life count: " + this.destroyed)
+        this.damage ++
+        console.log("life count: " + this.damage)
 
-        switch (this.destroyed) {
+        switch (this.damage) {
             case 1:
                 this.statusbar.style.backgroundPositionY = `-182px`;
                 break
@@ -85,17 +87,12 @@ class Game {
                 break
         }
     }
-
-    // public counter() {
-    //     setTimeout(this.counter, 1000)
-    //     console.log('show at: ' + (this.score++))
-    // }
        
     public scorePoint() {
         this.score ++
+        console.log(this.score)
         this.textfield.innerHTML = "Score: " + this.score
 
-        //this.counter()
     }
 } 
 

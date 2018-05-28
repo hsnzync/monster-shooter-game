@@ -26,6 +26,7 @@ abstract class Enemy {
         this.posy = randPos
         this.posx = window.innerWidth - this.element.clientWidth
         this.speedx = randSp
+
     }
 
     public boundingBox() {
@@ -46,7 +47,7 @@ abstract class Enemy {
             this.posx = window.innerWidth - this.element.clientWidth
             this.posy =  Math.floor(Math.random() * window.innerHeight) + 1
             Game.getInstance().removeLife()
-            Game.getInstance().scorePoint()
+            //Game.getInstance().scorePoint()
         }
     }
 

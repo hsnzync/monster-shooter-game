@@ -6,7 +6,7 @@ class Player {
     private posy:number
     private element: HTMLElement
 
-    constructor(minWidth: number, maxWidth: number) {
+    constructor() {
         this.element = document.createElement("player")
         let foreground = document.getElementsByTagName("foreground")[0]
         foreground.appendChild(this.element);
@@ -18,6 +18,7 @@ class Player {
         this.posx = 50
         this.speedx = 0
         this.speedy = 0
+        let canvas = document.getElementById("demoCanvas");
     }
 
     public windowCol() : void {
@@ -54,21 +55,20 @@ class Player {
     onKeyDown(event:KeyboardEvent):void {
         switch(event.keyCode){
         case 37:
-            this.speedx = -5
-            this.element.style.backgroundPositionX = `-72px`;
-            this.element.style.transform = 'scaleX(-1) !important';
+            this.speedx = -3
             break
         case 39:
-            this.speedx = 5
-            this.element.style.backgroundPositionX = `-72px`;
+            this.speedx = 3
             break
         case 38:
-            this.speedy = -5
-            this.element.style.backgroundPositionX = `-143px`;
+            this.speedy = -3
             break
         case 40:
-            this.speedy = 5
-            this.element.style.backgroundPositionX = `0px`;
+            this.speedy = 3
+            break
+        case 65:
+            console.log("Fire!")
+            Game.getInstance().scorePoint()
             break
         }
     }

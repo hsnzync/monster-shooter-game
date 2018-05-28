@@ -27,7 +27,8 @@ ui {
 }
 
 player {
-    background-image: url(../images/player.png);
+    background-image: url(../images/_player.png);
+    background-repeat: no-repeat;
     cursor: pointer;
     width: 60px;
     height: 65px;
@@ -56,6 +57,7 @@ ghost {
     height: 65px;
     background-size: 200px;
     background-image: url(../images/ghost.png);
+    background-repeat: no-repeat;
 }
 
 bat {
@@ -63,6 +65,7 @@ bat {
     height: 65px;
     background-size: 200px;
     background-image: url(../images/bat.png);
+    background-repeat: no-repeat;
 }
 
 skeleton {
@@ -70,11 +73,7 @@ skeleton {
     height: 65px;
     background-size: 250px;
     background-image: url(../images/skeleton.png);
-}
-
-explosion {
-    background-image: url(../images/explosion.png);
-    width:150px; height: 157px;
+    background-repeat: no-repeat;
 }
 
 background {
