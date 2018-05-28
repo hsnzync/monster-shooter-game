@@ -1,19 +1,14 @@
-abstract class Enemy {
+/// <reference path=".//GameObject.ts" />
 
-    protected element: HTMLElement
 
-    public minWidth: number = 0
-    public maxWidth: number = 0
-    public maxHeight: number = 0
-
-    public posy:number
-    public posx:number
-    public speedx:number
+abstract class Enemy extends GameObject {
 
     constructor(minWidth: number, maxWidth: number, element: string) {
-        this.element = document.createElement(element)
-        let foreground = document.getElementsByTagName("foreground")[0]
-        foreground.appendChild(this.element);
+        super(element)
+        
+        this.minWidth = 0
+        this.maxWidth = 0
+        this.maxHeight = 0
 
         maxWidth -= this.element.clientWidth
         this.minWidth = minWidth
@@ -27,10 +22,6 @@ abstract class Enemy {
         this.posx = window.innerWidth - this.element.clientWidth
         this.speedx = randSp
 
-    }
-
-    public boundingBox() {
-        return this.element.getBoundingClientRect();
     }
 
     public windowCol() :void {
@@ -52,8 +43,8 @@ abstract class Enemy {
     }
 
     public removeMe() {
-        //this.element.remove()
-        console.log("Ouch")
+        this.element.remove()
+        //console.log("Ouch")
     }
 
     abstract update() : void

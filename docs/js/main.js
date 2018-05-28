@@ -9,27 +9,52 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var Enemy = (function () {
-    function Enemy(minWidth, maxWidth, element) {
+var GameObject = (function () {
+    function GameObject(type) {
+        this.posx = 0;
+        this.posy = 0;
+        this.speedx = 0;
+        this.speedy = 0;
         this.minWidth = 0;
         this.maxWidth = 0;
         this.maxHeight = 0;
-        this.element = document.createElement(element);
+        this.element = document.createElement(type);
         var foreground = document.getElementsByTagName("foreground")[0];
         foreground.appendChild(this.element);
-        maxWidth -= this.element.clientWidth;
-        this.minWidth = minWidth;
-        this.maxWidth = maxWidth;
-        this.maxHeight = window.innerHeight - this.element.clientHeight;
-        var randPos = Math.floor(Math.random() * window.innerHeight) + 1;
-        var randSp = Math.floor(Math.random() * 7) + 3;
-        this.posy = randPos;
-        this.posx = window.innerWidth - this.element.clientWidth;
-        this.speedx = randSp;
     }
-    Enemy.prototype.boundingBox = function () {
+    GameObject.prototype.draw = function () {
+        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px)";
+    };
+    GameObject.prototype.randomPosition = function () {
+        this.minWidth = 0;
+        this.maxWidth = window.innerWidth - this.element.clientWidth;
+        this.maxHeight = window.innerHeight - this.element.clientHeight;
+        this.posx = (Math.random() * (this.maxWidth - this.minWidth) + this.minWidth);
+        this.posy = (Math.random() * (this.maxHeight - 0) + 0);
+    };
+    GameObject.prototype.boundingBox = function () {
         return this.element.getBoundingClientRect();
     };
+    return GameObject;
+}());
+var Enemy = (function (_super) {
+    __extends(Enemy, _super);
+    function Enemy(minWidth, maxWidth, element) {
+        var _this = _super.call(this, element) || this;
+        _this.minWidth = 0;
+        _this.maxWidth = 0;
+        _this.maxHeight = 0;
+        maxWidth -= _this.element.clientWidth;
+        _this.minWidth = minWidth;
+        _this.maxWidth = maxWidth;
+        _this.maxHeight = window.innerHeight - _this.element.clientHeight;
+        var randPos = Math.floor(Math.random() * window.innerHeight) + 1;
+        var randSp = Math.floor(Math.random() * 7) + 3;
+        _this.posy = randPos;
+        _this.posx = window.innerWidth - _this.element.clientWidth;
+        _this.speedx = randSp;
+        return _this;
+    }
     Enemy.prototype.windowCol = function () {
         if (this.posy < 280) {
             this.speedx *= 0;
@@ -45,10 +70,10 @@ var Enemy = (function () {
         }
     };
     Enemy.prototype.removeMe = function () {
-        console.log("Ouch");
+        this.element.remove();
     };
     return Enemy;
-}());
+}(GameObject));
 var Game = (function () {
     function Game() {
         this.score = 0;
@@ -120,18 +145,17 @@ var Game = (function () {
 window.addEventListener("load", function () {
     Game.getInstance();
 });
-var Player = (function () {
+var Player = (function (_super) {
+    __extends(Player, _super);
     function Player() {
-        var _this = this;
-        this.element = document.createElement("player");
-        var foreground = document.getElementsByTagName("foreground")[0];
-        foreground.appendChild(this.element);
+        var _this = _super.call(this, "player") || this;
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
-        this.posy = 400;
-        this.posx = 50;
-        this.speedx = 0;
-        this.speedy = 0;
+        _this.posy = 400;
+        _this.posx = 50;
+        _this.speedx = 0;
+        _this.speedy = 0;
+        return _this;
     }
     Player.prototype.windowCol = function () {
         if (this.posx + this.element.clientWidth > window.innerWidth) {
@@ -195,11 +219,8 @@ var Player = (function () {
                 break;
         }
     };
-    Player.prototype.boundingBox = function () {
-        return this.element.getBoundingClientRect();
-    };
     return Player;
-}());
+}(GameObject));
 var Util = (function () {
     function Util() {
     }

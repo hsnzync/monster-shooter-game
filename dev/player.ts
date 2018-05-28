@@ -1,16 +1,11 @@
-class Player {
+/// <reference path="./GameObject.ts" />
 
-    private speedx:number
-    private speedy:number
-    private posx:number
-    private posy:number
-    private element: HTMLElement
+
+class Player extends GameObject {
 
     constructor() {
-        this.element = document.createElement("player")
-        let foreground = document.getElementsByTagName("foreground")[0]
-        foreground.appendChild(this.element);
-        
+        super( "player")
+
         window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
         window.addEventListener("keyup", (e:KeyboardEvent) => this.onKeyUp(e))
         
@@ -18,6 +13,7 @@ class Player {
         this.posx = 50
         this.speedx = 0
         this.speedy = 0
+        
     }
 
     public windowCol() : void {
@@ -72,7 +68,7 @@ class Player {
         }
     }
     
-    onKeyUp(event:KeyboardEvent):void {
+    onKeyUp(event:KeyboardEvent):void { 
         switch(event.keyCode){
         case 37:
             this.speedx = 0
@@ -87,10 +83,7 @@ class Player {
             this.speedy = 0
             break
         }
-    }
-    
+    }   
 
-    public boundingBox() {
-        return this.element.getBoundingClientRect();
-    }
+
 }
