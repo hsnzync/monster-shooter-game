@@ -18,7 +18,6 @@ class Player {
         this.posx = 50
         this.speedx = 0
         this.speedy = 0
-        let canvas = document.getElementById("demoCanvas");
     }
 
     public windowCol() : void {

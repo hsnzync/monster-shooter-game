@@ -1,4 +1,4 @@
-class Skeleton extends Enemy {
+class Frog extends Enemy {
 
     private behavior : MoveBehavior
 

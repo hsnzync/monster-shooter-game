@@ -24,7 +24,7 @@ class Game {
         this.enemies.push(
             new Ghost(65, 65),
             new Bat(65, 65),
-            new Skeleton(65, 65)
+            new Frog(65, 65)
         )
         this.player = new Player()
         this.xPos = 0

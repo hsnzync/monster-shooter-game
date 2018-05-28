@@ -1,35 +1,47 @@
-Inleverdocument PRG01-8
+# Inleverdocument PRG01-8
+
 Dit is een opzet voor het inleverdocument. De exacte instructies vind je in de Modulewijzer.
 
-Inleiding
+## Inleiding
+
 Toelichting van je spelconcept
 
-Speelbare game
+## Speelbare game
+
 Link naar de online speelbare game
 
-Installatie
+## Installatie
+
 Instructies voor het clonen, editen en runnen van de game via deze repository.
 
-Klassendiagram
+## Klassendiagram
+
 Het klassendiagram van je game.
 
-Pull request
+## Pull request
+
 Link naar de pull request die je in week 4 hebt gedaan. De link gaat naar een PR in een fork van het project van een medestudent.
 
-Peer review
+## Peer review
+
 Link naar de peer review die je in week 6 hebt gedaan. De link gaat naar een issue in het project van een medestudent.
 
-Singleton
+## Singleton
+
 Beschrijf waar en waarom je de singleton hebt toegepast.
 
-Polymorfisme
+## Polymorfisme
+
 Beschrijf van minimaal 2 plekken uit jouw code waar en waarom er gebruik is gemaakt van polymorfisme.
 
-Strategy
+## Strategy
+
 Beschrijf waar en waarom je het strategy pattern hebt toegepast.
 
-Observer
+## Observer
+
 Beschrijf waar en waarom je het observer pattern hebt toegepast.
 
-Gameplay componenten
+## Gameplay componenten
+
 Beschrijf per component waar en waarom je het hebt toegepast

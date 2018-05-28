@@ -57,7 +57,7 @@ var Game = (function () {
         this.textfield = document.getElementsByTagName("textfield")[0];
         this.statusbar = document.getElementsByTagName("bar")[0];
         this.bg = document.getElementsByTagName("background")[0];
-        this.enemies.push(new Ghost(65, 65), new Bat(65, 65), new Skeleton(65, 65));
+        this.enemies.push(new Ghost(65, 65), new Bat(65, 65), new Frog(65, 65));
         this.player = new Player();
         this.xPos = 0;
         this.gameLoop();
@@ -132,7 +132,6 @@ var Player = (function () {
         this.posx = 50;
         this.speedx = 0;
         this.speedy = 0;
-        var canvas = document.getElementById("demoCanvas");
     }
     Player.prototype.windowCol = function () {
         if (this.posx + this.element.clientWidth > window.innerWidth) {
@@ -226,6 +225,20 @@ var Bat = (function (_super) {
     };
     return Bat;
 }(Enemy));
+var Frog = (function (_super) {
+    __extends(Frog, _super);
+    function Frog(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "skeleton") || this;
+        _this.behavior = new fastBehavior(_this);
+        return _this;
+    }
+    Frog.prototype.update = function () {
+        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
+        this.behavior.performUpdate();
+        this.windowCol();
+    };
+    return Frog;
+}(Enemy));
 var Ghost = (function (_super) {
     __extends(Ghost, _super);
     function Ghost(minWidth, maxWidth) {
@@ -239,20 +252,6 @@ var Ghost = (function (_super) {
         this.windowCol();
     };
     return Ghost;
-}(Enemy));
-var Skeleton = (function (_super) {
-    __extends(Skeleton, _super);
-    function Skeleton(minWidth, maxWidth) {
-        var _this = _super.call(this, minWidth, maxWidth, "skeleton") || this;
-        _this.behavior = new fastBehavior(_this);
-        return _this;
-    }
-    Skeleton.prototype.update = function () {
-        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
-        this.behavior.performUpdate();
-        this.windowCol();
-    };
-    return Skeleton;
 }(Enemy));
 var fastBehavior = (function () {
     function fastBehavior(enemy) {

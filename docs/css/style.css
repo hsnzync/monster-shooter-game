@@ -27,12 +27,12 @@ ui {
 }
 
 player {
-    background-image: url(../images/_player.png);
+    background-image: url(../images/player.gif);
     background-repeat: no-repeat;
     cursor: pointer;
     width: 60px;
     height: 65px;
-    background-size: 260px;
+    background-size: 65px;
 }
 
 bar {
@@ -55,24 +55,24 @@ textfield {
 ghost {
     width: 65px;
     height: 65px;
-    background-size: 200px;
-    background-image: url(../images/ghost.png);
+    background-size: 65px;
+    background-image: url(../images/ghost.gif);
     background-repeat: no-repeat;
 }
 
 bat {
     width: 65px;
     height: 65px;
-    background-size: 200px;
-    background-image: url(../images/bat.png);
+    background-size: 65px;
+    background-image: url(../images/bat.gif);
     background-repeat: no-repeat;
 }
 
 skeleton {
     width: 65px;
     height: 65px;
-    background-size: 250px;
-    background-image: url(../images/skeleton.png);
+    background-size: 65px;
+    background-image: url(../images/frog.gif);
     background-repeat: no-repeat;
 }
 
