@@ -72,16 +72,36 @@ skeleton {
     width: 65px;
     height: 65px;
     background-size: 65px;
-    background-image: url(../images/frog.gif);
+    background-image: url(../images/skeleton.gif);
+    background-repeat: no-repeat;
+}
+
+eye {
+    width: 65px;
+    height: 65px;
+    background-size: 65px;
+    background-image: url(../images/eye.gif);
+    background-repeat: no-repeat;
+}
+
+fireball {
+    width: 65px;
+    height: 65px;
+    background-size: 65px;
+    background-image: url(../images/fireball.gif);
     background-repeat: no-repeat;
 }
 
 background {
     width:100%; height:100%;
     background-color: #fff;
-    background-image: url(../images/bg.png);
+    background-image: url(../images/background.png);
     background-repeat: repeat-x;
     background-position: bottom;
     background-size: cover;
+
+}
+
+finalscore {
 
 }

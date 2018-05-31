@@ -1,5 +1,4 @@
-/// <reference path=".//GameObject.ts" />
-
+/// <reference path="./gameObject.ts" />
 
 abstract class Enemy extends GameObject {
 

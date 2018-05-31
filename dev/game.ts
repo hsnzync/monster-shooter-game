@@ -5,28 +5,28 @@ class Game {
     private score:number = 0
     private damage:number = 0
     private textfield:HTMLElement
+    private finalscore:HTMLElement
     private statusbar:HTMLElement
     private bg:HTMLElement
     private player:Player
+    //private fireball:Fireball
     private enemies:Enemy[] = []
     private xPos:number
 
-    
     private constructor() {
         this.textfield = document.getElementsByTagName("textfield")[0] as HTMLElement
+        this.finalscore = document.getElementsByTagName("finalscore")[0] as HTMLElement
         this.statusbar = document.getElementsByTagName("bar")[0] as HTMLElement
         this.bg = document.getElementsByTagName("background")[0] as HTMLElement
-
-        // this.enemies = [
-        //     new Slime(65, 65)
-        // ]
+        window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
 
         this.enemies.push(
             new Ghost(65, 65),
             new Bat(65, 65),
-            new Frog(65, 65)
+            new Eye(65, 65),
+            new Skeleton(65, 65),
         )
-        this.player = new Player()
+        this.player = new Player()    
         this.xPos = 0
 
 
@@ -43,7 +43,7 @@ class Game {
     public gameLoop():void {
         //requestAnimationFrame(() => this.gameLoop())
 
-        this.xPos--;
+        this.xPos = this.xPos - 2;
         this.bg.style.backgroundPosition = this.xPos + 'px 0px';
         
         console.log("updating the game!")
@@ -51,6 +51,7 @@ class Game {
         for(let enemy of this.enemies) {
             enemy.update()
             this.player.update()
+            //this.fireball.update()
 
             if( Util.checkCollision( this.player.boundingBox(), enemy.boundingBox())) {
                 enemy.removeMe()
@@ -61,8 +62,29 @@ class Game {
         if(this.damage < 5) {
             requestAnimationFrame(()=>this.gameLoop())
         } else {
-            this.textfield.innerHTML = "GAME OVER - Score: " + this.score
+            this.finalscore.innerHTML = "GAME OVER <br> Score: " + this.score
+            this.finalscore.style.backgroundColor = "#000"
+            this.finalscore.style.padding = "50px 100px"
+            this.finalscore.style.width = "500px"
+            this.finalscore.style.lineHeight = "30px"
+            this.finalscore.style.fontSize = "25px"
         }   
+    }
+
+    public fire() {
+        let fireball = new Fireball()
+        fireball.posx = fireball.posx += fireball.speedx
+        console.log("fired a shot");
+    }
+
+    onKeyDown(event:KeyboardEvent):void {
+        switch(event.keyCode){
+        case 82:
+            console.log("Restart game")
+            Game.getInstance()
+            //this.gameLoop()
+            break
+        }
     }
 
     public removeLife(){

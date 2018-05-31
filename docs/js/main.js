@@ -76,13 +76,16 @@ var Enemy = (function (_super) {
 }(GameObject));
 var Game = (function () {
     function Game() {
+        var _this = this;
         this.score = 0;
         this.damage = 0;
         this.enemies = [];
         this.textfield = document.getElementsByTagName("textfield")[0];
+        this.finalscore = document.getElementsByTagName("finalscore")[0];
         this.statusbar = document.getElementsByTagName("bar")[0];
         this.bg = document.getElementsByTagName("background")[0];
-        this.enemies.push(new Ghost(65, 65), new Bat(65, 65), new Frog(65, 65));
+        window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
+        this.enemies.push(new Ghost(65, 65), new Bat(65, 65), new Eye(65, 65), new Skeleton(65, 65));
         this.player = new Player();
         this.xPos = 0;
         this.gameLoop();
@@ -95,7 +98,7 @@ var Game = (function () {
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
-        this.xPos--;
+        this.xPos = this.xPos - 2;
         this.bg.style.backgroundPosition = this.xPos + 'px 0px';
         console.log("updating the game!");
         for (var _i = 0, _a = this.enemies; _i < _a.length; _i++) {
@@ -111,7 +114,25 @@ var Game = (function () {
             requestAnimationFrame(function () { return _this.gameLoop(); });
         }
         else {
-            this.textfield.innerHTML = "GAME OVER - Score: " + this.score;
+            this.finalscore.innerHTML = "GAME OVER <br> Score: " + this.score;
+            this.finalscore.style.backgroundColor = "#000";
+            this.finalscore.style.padding = "50px 100px";
+            this.finalscore.style.width = "500px";
+            this.finalscore.style.lineHeight = "30px";
+            this.finalscore.style.fontSize = "25px";
+        }
+    };
+    Game.prototype.fire = function () {
+        var fireball = new Fireball();
+        fireball.posx = fireball.posx += fireball.speedx;
+        console.log("fired a shot");
+    };
+    Game.prototype.onKeyDown = function (event) {
+        switch (event.keyCode) {
+            case 82:
+                console.log("Restart game");
+                Game.getInstance();
+                break;
         }
     };
     Game.prototype.removeLife = function () {
@@ -145,6 +166,31 @@ var Game = (function () {
 window.addEventListener("load", function () {
     Game.getInstance();
 });
+var Util = (function () {
+    function Util() {
+    }
+    Util.checkCollision = function (a, b) {
+        return (a.left <= b.right &&
+            b.left <= a.right &&
+            a.top <= b.bottom &&
+            b.top <= a.bottom);
+    };
+    return Util;
+}());
+var Fireball = (function (_super) {
+    __extends(Fireball, _super);
+    function Fireball() {
+        var _this = _super.call(this, "fireball") || this;
+        var r = Math.floor(Math.random() * 6) + 3;
+        _this.speedx = r;
+        return _this;
+    }
+    Fireball.prototype.update = function () {
+        this.posx = this.posx + this.speedx;
+        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px)";
+    };
+    return Fireball;
+}(GameObject));
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player() {
@@ -200,6 +246,7 @@ var Player = (function (_super) {
             case 65:
                 console.log("Fire!");
                 Game.getInstance().scorePoint();
+                Game.getInstance().fire();
                 break;
         }
     };
@@ -221,17 +268,6 @@ var Player = (function (_super) {
     };
     return Player;
 }(GameObject));
-var Util = (function () {
-    function Util() {
-    }
-    Util.checkCollision = function (a, b) {
-        return (a.left <= b.right &&
-            b.left <= a.right &&
-            a.top <= b.bottom &&
-            b.top <= a.bottom);
-    };
-    return Util;
-}());
 var Bat = (function (_super) {
     __extends(Bat, _super);
     function Bat(minWidth, maxWidth) {
@@ -246,19 +282,19 @@ var Bat = (function (_super) {
     };
     return Bat;
 }(Enemy));
-var Frog = (function (_super) {
-    __extends(Frog, _super);
-    function Frog(minWidth, maxWidth) {
-        var _this = _super.call(this, minWidth, maxWidth, "skeleton") || this;
+var Eye = (function (_super) {
+    __extends(Eye, _super);
+    function Eye(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "eye") || this;
         _this.behavior = new fastBehavior(_this);
         return _this;
     }
-    Frog.prototype.update = function () {
+    Eye.prototype.update = function () {
         this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
         this.behavior.performUpdate();
         this.windowCol();
     };
-    return Frog;
+    return Eye;
 }(Enemy));
 var Ghost = (function (_super) {
     __extends(Ghost, _super);
@@ -273,6 +309,20 @@ var Ghost = (function (_super) {
         this.windowCol();
     };
     return Ghost;
+}(Enemy));
+var Skeleton = (function (_super) {
+    __extends(Skeleton, _super);
+    function Skeleton(minWidth, maxWidth) {
+        var _this = _super.call(this, minWidth, maxWidth, "skeleton") || this;
+        _this.behavior = new fastBehavior(_this);
+        return _this;
+    }
+    Skeleton.prototype.update = function () {
+        this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px) scaleX(-1)";
+        this.behavior.performUpdate();
+        this.windowCol();
+    };
+    return Skeleton;
 }(Enemy));
 var fastBehavior = (function () {
     function fastBehavior(enemy) {
