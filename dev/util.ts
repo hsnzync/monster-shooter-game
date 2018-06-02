@@ -6,5 +6,4 @@ class Util {
               a.top <= b.bottom &&
               b.top <= a.bottom)
     }
-
 }

@@ -1,11 +1,11 @@
 class fastBehavior implements MoveBehavior {
 
-    private enemy : Enemy
+    private enemy : EnemyObject
     private speedx : number
 
-    constructor(enemy : Enemy) {
+    constructor(enemy : EnemyObject) {
         this.enemy = enemy
-        let r = Math.floor(Math.random() * 6) + 3
+        let r = Math.floor(Math.random() * 4) + 3
         this.speedx = r
     }
 

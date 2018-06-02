@@ -1,6 +1,6 @@
-/// <reference path="../../enemy.ts" />
+/// <reference path="../../enemyObject.ts" />
 
-class Ghost extends Enemy {
+class Ghost extends EnemyObject {
 
     private behavior : MoveBehavior
 

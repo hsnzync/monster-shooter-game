@@ -1,9 +1,20 @@
-/// <reference path="./gameObject.ts" />
+abstract class EnemyObject {
 
-abstract class Enemy extends GameObject {
+    protected element: HTMLElement
+ 
+    public minWidth: number
+    public maxWidth: number
+    public maxHeight: number
+
+    public posy:number
+    public posx:number
+    public speedx:number
 
     constructor(minWidth: number, maxWidth: number, element: string) {
-        super(element)
+
+        this.element = document.createElement(element)
+        let foreground = document.getElementsByTagName("foreground")[0]
+        foreground.appendChild(this.element);
         
         this.minWidth = 0
         this.maxWidth = 0
@@ -43,7 +54,11 @@ abstract class Enemy extends GameObject {
 
     public removeMe() {
         this.element.remove()
-        //console.log("Ouch")
+        console.log("Removed monster")
+    }
+
+    public getBoundingClientRect() {
+        return this.element.getBoundingClientRect()
     }
 
     abstract update() : void

@@ -3,34 +3,37 @@ class Game {
     private static instance: Game
 
     private score:number = 0
-    private damage:number = 0
+    private life:number = 0
     private textfield:HTMLElement
-    private finalscore:HTMLElement
-    private statusbar:HTMLElement
+    private healthbar:HTMLElement
+    private topbar:HTMLElement
     private bg:HTMLElement
     private player:Player
-    //private fireball:Fireball
-    private enemies:Enemy[] = []
+    private enemies:EnemyObject[] = []
+    private fireball:Fireball[] = []
     private xPos:number
 
     private constructor() {
         this.textfield = document.getElementsByTagName("textfield")[0] as HTMLElement
-        this.finalscore = document.getElementsByTagName("finalscore")[0] as HTMLElement
-        this.statusbar = document.getElementsByTagName("bar")[0] as HTMLElement
+        this.healthbar = document.getElementsByTagName("healthbar")[0] as HTMLElement
+        this.topbar = document.getElementsByTagName("topbar")[0] as HTMLElement
         this.bg = document.getElementsByTagName("background")[0] as HTMLElement
         window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
 
+        this.topbar.style.width = `${window.innerWidth}px`
+
         this.enemies.push(
             new Ghost(65, 65),
-            new Bat(65, 65),
-            new Eye(65, 65),
+            new Slime(55, 65),
+            new Eye(50, 65),
             new Skeleton(65, 65),
         )
-        this.player = new Player()    
+        this.player = new Player()
+
         this.xPos = 0
 
-
         this.gameLoop()
+        
     }
 
     public static getInstance() {
@@ -51,30 +54,58 @@ class Game {
         for(let enemy of this.enemies) {
             enemy.update()
             this.player.update()
-            //this.fireball.update()
 
-            if( Util.checkCollision( this.player.boundingBox(), enemy.boundingBox())) {
+            if( Util.checkCollision( this.player.getBoundingClientRect(), enemy.getBoundingClientRect())) {
                 enemy.removeMe()
                 this.removeLife()
             }
+
+            for(let fire of this.fireball) {
+                fire.update()
+                
+                if( Util.checkCollision( fire.getBoundingClientRect(), enemy.getBoundingClientRect())) {
+                    enemy.removeMe()
+                    this.scorePoint()
+                    this.removeLife()
+
+                    for(let i = this.fireball.length; i >= 0; i--) {
+                        let item = this.enemies[i]
+                        if(item == this.enemies[0]) {
+                            this.fireball.splice(i, 1)
+                        }
+                    }
+
+                    enemy.posx = window.innerWidth - 65
+
+                    // for(let i = this.enemies.length; i >= 0; i--){
+                    //     let item = this.enemies[i]
+                    //     this.enemies.splice(i,1)
+                    // }
+                }
+            }
         }
         
-        if(this.damage < 5) {
-            requestAnimationFrame(()=>this.gameLoop())
+        if(this.life == 5) {
+            let finalscore = document.getElementsByTagName("finalscore")[0] as HTMLElement
+
+            finalscore.innerHTML = "GAME OVER"
+            finalscore.style.display = "block"
+            finalscore.style.marginLeft = `${window.innerWidth / 2 - 250}px`
+            finalscore.style.marginTop = `${window.innerHeight / 2 - 50}px`
+            //this.statusbar.remove()
+            //this.textfield.remove()
         } else {
-            this.finalscore.innerHTML = "GAME OVER <br> Score: " + this.score
-            this.finalscore.style.backgroundColor = "#000"
-            this.finalscore.style.padding = "50px 100px"
-            this.finalscore.style.width = "500px"
-            this.finalscore.style.lineHeight = "30px"
-            this.finalscore.style.fontSize = "25px"
+            requestAnimationFrame(()=>this.gameLoop())
         }   
     }
 
     public fire() {
-        let fireball = new Fireball()
-        fireball.posx = fireball.posx += fireball.speedx
+        this.fireball.push (
+            new Fireball(this.player.posy)
+        )
+
         console.log("fired a shot");
+        console.log(this.player.posy)
     }
 
     onKeyDown(event:KeyboardEvent):void {
@@ -88,24 +119,24 @@ class Game {
     }
 
     public removeLife(){
-        this.damage ++
-        console.log("life count: " + this.damage)
+        this.life ++
+        console.log("life count: " + this.life)
 
-        switch (this.damage) {
+        switch (this.life) {
             case 1:
-                this.statusbar.style.backgroundPositionY = `-182px`;
+                this.healthbar.style.backgroundPositionY = `-204px`;
                 break
             case 2:
-                this.statusbar.style.backgroundPositionY = `-136px`;
+                this.healthbar.style.backgroundPositionY = `-153px`;
                 break
             case 3:
-                this.statusbar.style.backgroundPositionY = `-91px`;
+                this.healthbar.style.backgroundPositionY = `-102px`;
                 break
             case 4:
-                this.statusbar.style.backgroundPositionY = `-46px`;
+                this.healthbar.style.backgroundPositionY = `-51px`;
                 break
             case 5:
-                this.statusbar.style.backgroundPositionY = `0`;
+                this.healthbar.style.backgroundPositionY = `0`;
                 break
         }
     }
@@ -114,7 +145,6 @@ class Game {
         this.score ++
         console.log(this.score)
         this.textfield.innerHTML = "Score: " + this.score
-
     }
 } 
 

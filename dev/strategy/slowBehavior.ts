@@ -1,9 +1,9 @@
 class slowBehavior implements MoveBehavior {
 
-    private enemy : Enemy
+    private enemy : EnemyObject
     private speedx : number
 
-    constructor(enemy : Enemy) {
+    constructor(enemy : EnemyObject) {
         this.enemy = enemy
         let r = Math.floor(Math.random() * 3) + 1
         this.speedx = r

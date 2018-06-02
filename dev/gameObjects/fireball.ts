@@ -1,17 +1,19 @@
-/// <reference path="../gameObject.ts" />
+/// <reference path="../playerObject.ts" />
 
-class Fireball extends GameObject {
+class Fireball extends PlayerObject {
 
-    constructor() {
-
+    constructor(y: number) {
         super("fireball")
-        let r = Math.floor(Math.random() * 6) + 3
-        this.speedx = r
 
+        this.speedx = 2
+        this.posx = 80
+        this.posy = y
     }
 
     public update():void {
-        this.posx = this.posx + this.speedx
-        this.element.style.transform = `translate(${this.posx}px, ${this.posy}px)`        
+        this.posx = this.posx += this.speedx
+        
+        this.draw()
+        this.element.style.transform = `translate(${this.posx}px, ${this.posy}px)`
     }
 }

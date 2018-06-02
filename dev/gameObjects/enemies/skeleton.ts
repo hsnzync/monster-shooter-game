@@ -1,6 +1,6 @@
-/// <reference path="../../enemy.ts" />
+/// <reference path="../../enemyObject.ts" />
 
-class Skeleton extends Enemy {
+class Skeleton extends EnemyObject {
 
     private behavior : MoveBehavior
 

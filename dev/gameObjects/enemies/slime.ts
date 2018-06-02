@@ -1,12 +1,12 @@
-/// <reference path="../../enemy.ts" />
+/// <reference path="../../enemyObject.ts" />
 
-class Bat extends Enemy {
+class Slime extends EnemyObject {
 
     private behavior : MoveBehavior
     
     constructor(minWidth: number, maxWidth: number) {
 
-        super(minWidth, maxWidth, "bat")
+        super(minWidth, maxWidth, "slime")
         this.behavior = new slowBehavior(this)
 
     }
