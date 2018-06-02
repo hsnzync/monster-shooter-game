@@ -4,34 +4,32 @@ Dit is een opzet voor het inleverdocument. De exacte instructies vind je in de M
 
 ## Inleiding
 
-Als de grootste superheld van galaxy 9B44 heb je de missie gekregen om planeet Namek veiliger maken. Er moeten zoveel mogelijk monsters vernietigd worden. Aan jouw taak om te overleven op dit planeet, zodat je jouw missie kunt voltooien.
+Als grootste superheld van Galaxy Apollo heb je de missie gekregen om planeet 553 veiliger maken. Er moeten zoveel mogelijk monsters vernietigd worden. Aan jouw taak om te overleven op dit planeet, zodat je jouw missie kunt voltooien.
 
 ## Speelbare game
-
-Link naar de online speelbare game
-...
+- https://hsnzync.github.io/monster-shooter/
 
 ## Installatie
 
-# Stap 1 (clonen):
+#### Stap 1 (clonen):
 Clone het project naar jouw lokale server
 - git clone git@github.com:Hsnzync/monster-shooter.git
 
-# Stap 2 (editen):
+#### Stap 2 (editen):
 Na het aanpassen van de repository:
-- git add .
+- git add . / git add -p
 - git commit -m "beschrijving"
 - git push origin master
 
-# Stap 3 (runnen / watch):
+#### Stap 3 (runnen / watch):
 Open het project in Visual Studio Code
-Watch: Shift + CMD + B
-Zet jouw lokale server aan
+- Zet jouw lokale server aan
+- Watch: Shift + CMD + B
 
 ## Klassendiagram
 
 Het klassendiagram van je game.
-...
+- ...
 
 ## Pull request
 
@@ -53,13 +51,13 @@ Beschrijf van minimaal 2 plekken uit jouw code waar en waarom er gebruik is gema
 
 ## Strategy
 
-Beschrijf waar en waarom je het strategy pattern hebt toegepast.
-De fastBehavior en slowBehavior zijn twee klasses die implementeren van MoveBehavior. Deze twee manipuleren de snelheid van elk type enemy.
+- De fastBehavior en slowBehavior zijn twee klasses die implementeren van MoveBehavior. Deze twee manipuleren de snelheid van elk type enemy.
+- ...
 
 ## Observer
 
 Beschrijf waar en waarom je het observer pattern hebt toegepast.
-...
+- ...
 
 ## Gameplay componenten
 
