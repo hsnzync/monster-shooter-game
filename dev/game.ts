@@ -9,8 +9,8 @@ class Game {
     private topbar:HTMLElement
     private bg:HTMLElement
     private player:Player
-    private enemies:EnemyObject[] = []
-    private fireball:Fireball[] = []
+    private objects:GameObject[] = []
+    private fireballs:Fireball[] = []
     private xPos:number
 
     private constructor() {
@@ -22,11 +22,12 @@ class Game {
 
         this.topbar.style.width = `${window.innerWidth}px`
 
-        this.enemies.push(
-            new Ghost(65, 65),
-            new Slime(55, 65),
-            new Eye(50, 65),
-            new Skeleton(65, 65),
+        this.objects.push(
+            new Ghost(),
+            new Slime(),
+            new Eye(),
+            new Skeleton(),
+            new Powerup()
         )
         this.player = new Player()
 
@@ -50,42 +51,45 @@ class Game {
         this.bg.style.backgroundPosition = this.xPos + 'px 0px';
         
         console.log("updating the game!")
+
+        this.player.update()
         
-        for(let enemy of this.enemies) {
+        for(let enemy of this.objects) {
             enemy.update()
-            this.player.update()
 
             if( Util.checkCollision( this.player.getBoundingClientRect(), enemy.getBoundingClientRect())) {
                 enemy.removeMe()
                 this.removeLife()
+
+                let enemyIndex = this.objects.indexOf(enemy)
+                this.objects.splice(enemyIndex, 1)
+
+                this.objects.push(
+                    new Ghost()
+                )
             }
 
-            for(let fire of this.fireball) {
+            for(let fire of this.fireballs) {
                 fire.update()
                 
                 if( Util.checkCollision( fire.getBoundingClientRect(), enemy.getBoundingClientRect())) {
-                    enemy.removeMe()
+                    //enemy.removeMe()
+                    fire.removeMe()
                     this.scorePoint()
-                    this.removeLife()
+                    enemy.reset()
 
-                    for(let i = this.fireball.length; i >= 0; i--) {
-                        let item = this.enemies[i]
-                        if(item == this.enemies[0]) {
-                            this.fireball.splice(i, 1)
-                        }
-                    }
+                    let fireballIndex = this.fireballs.indexOf(fire)
+                    this.fireballs.splice(fireballIndex, 1)
 
+                    //let enemyIndex = this.enemies.indexOf(enemy)
+                    //this.enemies.splice(enemyIndex, 1)
+                    
                     enemy.posx = window.innerWidth - 65
-
-                    // for(let i = this.enemies.length; i >= 0; i--){
-                    //     let item = this.enemies[i]
-                    //     this.enemies.splice(i,1)
-                    // }
                 }
             }
         }
         
-        if(this.life == 5) {
+        if(this.life >= 6) {
             let finalscore = document.getElementsByTagName("finalscore")[0] as HTMLElement
 
             finalscore.innerHTML = "GAME OVER"
@@ -96,11 +100,17 @@ class Game {
             //this.textfield.remove()
         } else {
             requestAnimationFrame(()=>this.gameLoop())
-        }   
+        }
+
+        // if (this.score == 4) {
+        //     this.enemies.push(
+        //         new Powerup()
+        //     )
+        // }
     }
 
     public fire() {
-        this.fireball.push (
+        this.fireballs.push (
             new Fireball(this.player.posy)
         )
 
@@ -120,23 +130,26 @@ class Game {
 
     public removeLife(){
         this.life ++
-        console.log("life count: " + this.life)
+        console.log("hit count: " + this.life)
 
         switch (this.life) {
             case 1:
-                this.healthbar.style.backgroundPositionY = `-204px`;
+                this.healthbar.style.backgroundPositionY = `-255px`;
                 break
             case 2:
-                this.healthbar.style.backgroundPositionY = `-153px`;
+                this.healthbar.style.backgroundPositionY = `-204px`;
                 break
             case 3:
-                this.healthbar.style.backgroundPositionY = `-102px`;
+                this.healthbar.style.backgroundPositionY = `-153px`;
                 break
             case 4:
-                this.healthbar.style.backgroundPositionY = `-51px`;
+                this.healthbar.style.backgroundPositionY = `-102px`;
                 break
             case 5:
-                this.healthbar.style.backgroundPositionY = `0`;
+                this.healthbar.style.backgroundPositionY = `-51px`;
+                break
+            case 6:
+                this.healthbar.style.backgroundPositionY = `0px`;
                 break
         }
     }

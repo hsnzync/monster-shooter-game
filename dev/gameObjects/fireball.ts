@@ -1,6 +1,4 @@
-/// <reference path="../playerObject.ts" />
-
-class Fireball extends PlayerObject {
+class Fireball extends GameObject {
 
     constructor(y: number) {
         super("fireball")
@@ -15,5 +13,10 @@ class Fireball extends PlayerObject {
         
         this.draw()
         this.element.style.transform = `translate(${this.posx}px, ${this.posy}px)`
+    }
+
+    public removeMe() {
+        this.element.remove()
+        console.log("Removed monster")
     }
 }

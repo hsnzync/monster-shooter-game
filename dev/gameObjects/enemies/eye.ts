@@ -1,21 +1,18 @@
-/// <reference path="../../enemyObject.ts" />
-
-class Eye extends EnemyObject {
+class Eye extends GameObject {
 
     private behavior : MoveBehavior
 
-    constructor(minWidth: number, maxWidth: number) {
+    constructor() {
 
-        super(minWidth, maxWidth, "eye")
+        super("eye")
         this.behavior = new fastBehavior(this)
 
     }
 
     public update():void {
-        this.element.style.transform = `translate(${this.posx}px, ${this.posy}px) scaleX(-1)`
-
         this.behavior.performUpdate()
-        this.windowCol()
+        this.enemyWindowCol()
+        this.draw()
 
     }
     
