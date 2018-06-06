@@ -16,13 +16,15 @@ var Game = (function () {
         this.life = 0;
         this.objects = [];
         this.fireballs = [];
+        this.powerups = [];
         this.textfield = document.getElementsByTagName("textfield")[0];
         this.healthbar = document.getElementsByTagName("healthbar")[0];
         this.topbar = document.getElementsByTagName("topbar")[0];
         this.bg = document.getElementsByTagName("background")[0];
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         this.topbar.style.width = window.innerWidth + "px";
-        this.objects.push(new Ghost(), new Slime(), new Eye(), new Skeleton(), new Powerup());
+        this.objects.push(new Ghost(), new Slime(), new Eye(), new Skeleton());
+        this.powerups.push(new Powerup());
         this.player = new Player();
         this.xPos = 0;
         this.gameLoop();

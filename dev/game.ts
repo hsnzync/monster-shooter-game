@@ -11,6 +11,7 @@ class Game {
     private player:Player
     private objects:GameObject[] = []
     private fireballs:Fireball[] = []
+    private powerups:Powerup[] = []
     private xPos:number
 
     private constructor() {
@@ -27,8 +28,12 @@ class Game {
             new Slime(),
             new Eye(),
             new Skeleton(),
+        )
+
+        this.powerups.push(
             new Powerup()
         )
+
         this.player = new Player()
 
         this.xPos = 0
