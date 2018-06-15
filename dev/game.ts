@@ -11,7 +11,7 @@ class Game {
     private player:Player
     private objects:GameObject[] = []
     private fireballs:Fireball[] = []
-    private powerups:Powerup[] = []
+    private pickups:Powerup[] = []
     private xPos:number
 
     private constructor() {
@@ -23,23 +23,31 @@ class Game {
 
         this.topbar.style.width = `${window.innerWidth}px`
 
-        this.objects.push(
-            new Ghost(),
-            new Slime(),
-            new Eye(),
-            new Skeleton(),
-        )
-
-        this.powerups.push(
-            new Powerup()
-        )
-
         this.player = new Player()
+
+        this.objects.push(
+            new Ghost(this.player),
+            new Slime(this.player),
+            new Eye(this.player),
+            new Skeleton(this.player),
+        )
 
         this.xPos = 0
 
         this.gameLoop()
         
+        setInterval( () => { 
+
+            if(this.pickups.length == 0) {
+
+                this.pickups.push(
+                    new Powerup()
+                )
+
+            }
+
+        }, 3000);
+
     }
 
     public static getInstance() {
@@ -55,23 +63,32 @@ class Game {
         this.xPos = this.xPos - 2;
         this.bg.style.backgroundPosition = this.xPos + 'px 0px';
         
-        console.log("updating the game!")
-
         this.player.update()
         
         for(let enemy of this.objects) {
             enemy.update()
 
             if( Util.checkCollision( this.player.getBoundingClientRect(), enemy.getBoundingClientRect())) {
-                enemy.removeMe()
+                enemy.reset()
                 this.removeLife()
+                this.score --
+            }
 
-                let enemyIndex = this.objects.indexOf(enemy)
-                this.objects.splice(enemyIndex, 1)
+            for(let pickup of this.pickups) {
 
-                this.objects.push(
-                    new Ghost()
-                )
+                pickup.update()
+
+                if( Util.checkCollision( this.player.getBoundingClientRect(), pickup.getBoundingClientRect())) {
+                    
+                    pickup.removeMe()
+                    console.log('powerup picked up')
+                    let powerupIndex = this.pickups.indexOf(pickup)
+                    this.pickups.splice(powerupIndex, 1)
+
+                    this.player.notifyAllObservers()
+
+                }
+                
             }
 
             for(let fire of this.fireballs) {
@@ -115,11 +132,13 @@ class Game {
     }
 
     public fire() {
-        this.fireballs.push (
-            new Fireball(this.player.posy)
-        )
+            if(this.fireballs.length >= 0) {
+            this.fireballs.push (
+                new Fireball(this.player.posy)
+            )
+        }
 
-        console.log("fired a shot");
+        console.log("fire");
         console.log(this.player.posy)
     }
 

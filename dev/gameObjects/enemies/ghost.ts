@@ -1,11 +1,14 @@
-class Ghost extends GameObject {
+class Ghost extends GameObject implements Observer {
 
     private behavior : MoveBehavior
+    public player: Player
 
-    constructor() {
+    constructor(p: Player) {
 
         super("ghost")
         this.behavior = new fastBehavior(this)
+        this.player = p
+        p.add(this)
 
     }
 
@@ -13,6 +16,13 @@ class Ghost extends GameObject {
         this.behavior.performUpdate()
         this.enemyWindowCol()
         this.draw()
+    }
+
+    public notify(): void {
+        setTimeout(() => {
+            this.speedx = 0
+            this.posx = this.posx -= 0
+        }, 5000);
     }
     
 }

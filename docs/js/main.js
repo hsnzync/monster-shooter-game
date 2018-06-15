@@ -16,18 +16,22 @@ var Game = (function () {
         this.life = 0;
         this.objects = [];
         this.fireballs = [];
-        this.powerups = [];
+        this.pickups = [];
         this.textfield = document.getElementsByTagName("textfield")[0];
         this.healthbar = document.getElementsByTagName("healthbar")[0];
         this.topbar = document.getElementsByTagName("topbar")[0];
         this.bg = document.getElementsByTagName("background")[0];
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         this.topbar.style.width = window.innerWidth + "px";
-        this.objects.push(new Ghost(), new Slime(), new Eye(), new Skeleton());
-        this.powerups.push(new Powerup());
         this.player = new Player();
+        this.objects.push(new Ghost(this.player), new Slime(this.player), new Eye(this.player), new Skeleton(this.player));
         this.xPos = 0;
         this.gameLoop();
+        setInterval(function () {
+            if (_this.pickups.length == 0) {
+                _this.pickups.push(new Powerup());
+            }
+        }, 3000);
     }
     Game.getInstance = function () {
         if (!Game.instance) {
@@ -39,20 +43,28 @@ var Game = (function () {
         var _this = this;
         this.xPos = this.xPos - 2;
         this.bg.style.backgroundPosition = this.xPos + 'px 0px';
-        console.log("updating the game!");
         this.player.update();
         for (var _i = 0, _a = this.objects; _i < _a.length; _i++) {
             var enemy = _a[_i];
             enemy.update();
             if (Util.checkCollision(this.player.getBoundingClientRect(), enemy.getBoundingClientRect())) {
-                enemy.removeMe();
+                enemy.reset();
                 this.removeLife();
-                var enemyIndex = this.objects.indexOf(enemy);
-                this.objects.splice(enemyIndex, 1);
-                this.objects.push(new Ghost());
+                this.score--;
             }
-            for (var _b = 0, _c = this.fireballs; _b < _c.length; _b++) {
-                var fire = _c[_b];
+            for (var _b = 0, _c = this.pickups; _b < _c.length; _b++) {
+                var pickup = _c[_b];
+                pickup.update();
+                if (Util.checkCollision(this.player.getBoundingClientRect(), pickup.getBoundingClientRect())) {
+                    pickup.removeMe();
+                    console.log('powerup picked up');
+                    var powerupIndex = this.pickups.indexOf(pickup);
+                    this.pickups.splice(powerupIndex, 1);
+                    this.player.notifyAllObservers();
+                }
+            }
+            for (var _d = 0, _e = this.fireballs; _d < _e.length; _d++) {
+                var fire = _e[_d];
                 fire.update();
                 if (Util.checkCollision(fire.getBoundingClientRect(), enemy.getBoundingClientRect())) {
                     fire.removeMe();
@@ -76,8 +88,10 @@ var Game = (function () {
         }
     };
     Game.prototype.fire = function () {
-        this.fireballs.push(new Fireball(this.player.posy));
-        console.log("fired a shot");
+        if (this.fireballs.length >= 0) {
+            this.fireballs.push(new Fireball(this.player.posy));
+        }
+        console.log("fire");
         console.log(this.player.posy);
     };
     Game.prototype.onKeyDown = function (event) {
@@ -190,6 +204,20 @@ var Util = (function () {
     };
     return Util;
 }());
+var Coin = (function (_super) {
+    __extends(Coin, _super);
+    function Coin() {
+        var _this = _super.call(this, "coin") || this;
+        _this.behavior = new slowBehavior(_this);
+        return _this;
+    }
+    Coin.prototype.update = function () {
+        this.draw();
+        this.enemyWindowCol();
+        this.behavior.performUpdate();
+    };
+    return Coin;
+}(GameObject));
 var Fireball = (function (_super) {
     __extends(Fireball, _super);
     function Fireball(y) {
@@ -214,6 +242,7 @@ var Player = (function (_super) {
     __extends(Player, _super);
     function Player() {
         var _this = _super.call(this, "player") || this;
+        _this.observers = [];
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
         _this.posy = 400;
@@ -221,9 +250,13 @@ var Player = (function (_super) {
         _this.speedx = 0;
         _this.speedy = 0;
         _this.x = 0;
+        _this.cooldown = 0;
         return _this;
     }
     Player.prototype.update = function () {
+        if (this.cooldown > 0) {
+            this.cooldown = this.cooldown - 1;
+        }
         this.posx = this.posx + this.speedx;
         this.posy = this.posy + this.speedy;
         if (this.posx >= window.innerWidth) {
@@ -231,6 +264,14 @@ var Player = (function (_super) {
         }
         this.playerWindowCol();
         this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px)";
+    };
+    Player.prototype.add = function (o) {
+        this.observers.push(o);
+    };
+    Player.prototype.notifyAllObservers = function () {
+        this.observers.forEach(function (observer) {
+            observer.notify();
+        });
     };
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {
@@ -241,11 +282,12 @@ var Player = (function (_super) {
                 this.speedy = 2;
                 break;
             case 32:
-                console.log("Fire!");
-                Game.getInstance().fire();
-                this.x -= 1;
-                setTimeout(10);
-                break;
+                if (this.cooldown == 0) {
+                    this.cooldown = 30;
+                    Game.getInstance().fire();
+                    this.x -= 1;
+                    break;
+                }
         }
     };
     Player.prototype.onKeyUp = function (event) {
@@ -264,21 +306,27 @@ var Powerup = (function (_super) {
     __extends(Powerup, _super);
     function Powerup() {
         var _this = _super.call(this, "powerup") || this;
-        _this.behavior = new slowBehavior(_this);
+        _this.speedx = 1;
         return _this;
     }
     Powerup.prototype.update = function () {
-        this.draw();
+        this.posx -= this.speedx;
         this.enemyWindowCol();
-        this.behavior.performUpdate();
+        this.draw();
+    };
+    Powerup.prototype.removeMe = function () {
+        this.element.remove();
+        console.log("Removed monster");
     };
     return Powerup;
 }(GameObject));
 var Eye = (function (_super) {
     __extends(Eye, _super);
-    function Eye() {
+    function Eye(p) {
         var _this = _super.call(this, "eye") || this;
         _this.behavior = new fastBehavior(_this);
+        _this.player = p;
+        p.add(_this);
         return _this;
     }
     Eye.prototype.update = function () {
@@ -286,13 +334,22 @@ var Eye = (function (_super) {
         this.enemyWindowCol();
         this.draw();
     };
+    Eye.prototype.notify = function () {
+        var _this = this;
+        setTimeout(function () {
+            _this.speedx = 0;
+            _this.posx = _this.posx -= 0;
+        }, 5000);
+    };
     return Eye;
 }(GameObject));
 var Ghost = (function (_super) {
     __extends(Ghost, _super);
-    function Ghost() {
+    function Ghost(p) {
         var _this = _super.call(this, "ghost") || this;
         _this.behavior = new fastBehavior(_this);
+        _this.player = p;
+        p.add(_this);
         return _this;
     }
     Ghost.prototype.update = function () {
@@ -300,13 +357,22 @@ var Ghost = (function (_super) {
         this.enemyWindowCol();
         this.draw();
     };
+    Ghost.prototype.notify = function () {
+        var _this = this;
+        setTimeout(function () {
+            _this.speedx = 0;
+            _this.posx = _this.posx -= 0;
+        }, 5000);
+    };
     return Ghost;
 }(GameObject));
 var Skeleton = (function (_super) {
     __extends(Skeleton, _super);
-    function Skeleton() {
+    function Skeleton(p) {
         var _this = _super.call(this, "skeleton") || this;
         _this.behavior = new fastBehavior(_this);
+        _this.player = p;
+        p.add(_this);
         return _this;
     }
     Skeleton.prototype.update = function () {
@@ -314,19 +380,36 @@ var Skeleton = (function (_super) {
         this.enemyWindowCol();
         this.draw();
     };
+    Skeleton.prototype.notify = function () {
+        var _this = this;
+        setTimeout(function () {
+            _this.speedx = 0;
+            _this.posx = _this.posx -= 0;
+        }, 5000);
+    };
     return Skeleton;
 }(GameObject));
 var Slime = (function (_super) {
     __extends(Slime, _super);
-    function Slime() {
+    function Slime(p) {
         var _this = _super.call(this, "slime") || this;
         _this.behavior = new slowBehavior(_this);
+        _this.player = p;
+        p.add(_this);
         return _this;
     }
     Slime.prototype.update = function () {
         this.behavior.performUpdate();
         this.enemyWindowCol();
         this.draw();
+    };
+    Slime.prototype.notify = function () {
+        var _this = this;
+        setTimeout(function () {
+            _this.speedx = 0;
+            _this.posx = _this.posx -= 0;
+            console.log('hit the slime');
+        }, 5000);
     };
     return Slime;
 }(GameObject));
@@ -337,7 +420,7 @@ var fastBehavior = (function () {
         this.speedx = r;
     }
     fastBehavior.prototype.performUpdate = function () {
-        this.enemy.posx -= this.speedx;
+        this.enemy.posx = this.enemy.posx -= this.speedx;
     };
     return fastBehavior;
 }());
@@ -348,7 +431,7 @@ var slowBehavior = (function () {
         this.speedx = r;
     }
     slowBehavior.prototype.performUpdate = function () {
-        this.enemy.posx -= this.speedx;
+        this.enemy.posx = this.enemy.posx -= this.speedx;
     };
     return slowBehavior;
 }());

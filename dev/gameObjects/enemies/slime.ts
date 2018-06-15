@@ -1,11 +1,14 @@
-class Slime extends GameObject {
+class Slime extends GameObject implements Observer {
 
     private behavior : MoveBehavior
-    
-    constructor() {
+    public player: Player
+
+    constructor(p: Player) {
 
         super("slime")
         this.behavior = new slowBehavior(this)
+        this.player = p
+        p.add(this)
 
     }
 
@@ -13,6 +16,14 @@ class Slime extends GameObject {
         this.behavior.performUpdate()
         this.enemyWindowCol()
         this.draw()
+    }
+
+    public notify(): void {
+        setTimeout(() => {
+            this.speedx = 0
+            this.posx = this.posx -= 0
+            console.log('hit the slime')
+        }, 5000);
     }
     
 }

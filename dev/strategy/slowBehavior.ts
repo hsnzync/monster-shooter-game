@@ -12,7 +12,7 @@ class slowBehavior implements MoveBehavior {
 
     public performUpdate () {
         
-        this.enemy.posx -= this.speedx
+        this.enemy.posx = this.enemy.posx -= this.speedx
         
     }
 }

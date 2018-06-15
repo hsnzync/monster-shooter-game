@@ -1,20 +1,21 @@
 class Powerup extends GameObject {
     
-    private behavior : MoveBehavior
-
     constructor() {
 
         super("powerup")
-        this.behavior = new slowBehavior(this)
+        this.speedx = 1
 
     }
 
     public update():void {
-
-        this.draw()
+        this.posx -= this.speedx
         this.enemyWindowCol()
-        this.behavior.performUpdate()
+        this.draw()
+    }
 
+    public removeMe() {
+        this.element.remove()
+        console.log("Removed monster")
     }
     
 }
