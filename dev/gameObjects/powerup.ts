@@ -3,19 +3,17 @@ class Powerup extends GameObject {
     constructor() {
 
         super("powerup")
-        this.speedx = 1
 
     }
 
     public update():void {
-        this.posx -= this.speedx
+        this.posx = this.posx -= 2
         this.enemyWindowCol()
         this.draw()
     }
 
     public removeMe() {
         this.element.remove()
-        console.log("Removed monster")
     }
     
 }

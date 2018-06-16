@@ -4,8 +4,9 @@ class Player extends GameObject {
     public speedx:number
     public speedy: number
     public x: number
-    private cooldown : number
+    public cooldown : number
     private observers: Observer[] = []
+    private behavior : MoveBehavior
 
     constructor() {
         super( "player")
@@ -19,6 +20,8 @@ class Player extends GameObject {
         this.speedy = 0
         this.x = 0
         this.cooldown = 0
+
+        this.behavior = new fastBehavior(this, this)
 
     }
 
@@ -39,6 +42,11 @@ class Player extends GameObject {
 
         this.playerWindowCol()
         this.element.style.transform = `translate(${this.posx}px, ${this.posy}px)`
+        
+    }
+
+    public boost() {
+        this.behavior.playerMovement()
     }
 
     public add(o:Observer):void {
@@ -46,6 +54,7 @@ class Player extends GameObject {
     }
         
     public notifyAllObservers() : void {
+
         this.observers.forEach((observer) => {
             observer.notify()
         })

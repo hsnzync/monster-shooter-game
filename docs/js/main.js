@@ -14,7 +14,7 @@ var Game = (function () {
         var _this = this;
         this.score = 0;
         this.life = 0;
-        this.objects = [];
+        this.enemies = [];
         this.fireballs = [];
         this.pickups = [];
         this.textfield = document.getElementsByTagName("textfield")[0];
@@ -24,14 +24,14 @@ var Game = (function () {
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         this.topbar.style.width = window.innerWidth + "px";
         this.player = new Player();
-        this.objects.push(new Ghost(this.player), new Slime(this.player), new Eye(this.player), new Skeleton(this.player));
+        this.enemies.push(new Ghost(this.player), new Slime(this.player), new Eye(this.player), new Skeleton(this.player));
         this.xPos = 0;
         this.gameLoop();
         setInterval(function () {
             if (_this.pickups.length == 0) {
-                _this.pickups.push(new Powerup());
+                _this.pickups.push(new Powerup(), new Coin());
             }
-        }, 3000);
+        }, 10000);
     }
     Game.getInstance = function () {
         if (!Game.instance) {
@@ -44,7 +44,7 @@ var Game = (function () {
         this.xPos = this.xPos - 2;
         this.bg.style.backgroundPosition = this.xPos + 'px 0px';
         this.player.update();
-        for (var _i = 0, _a = this.objects; _i < _a.length; _i++) {
+        for (var _i = 0, _a = this.enemies; _i < _a.length; _i++) {
             var enemy = _a[_i];
             enemy.update();
             if (Util.checkCollision(this.player.getBoundingClientRect(), enemy.getBoundingClientRect())) {
@@ -60,7 +60,14 @@ var Game = (function () {
                     console.log('powerup picked up');
                     var powerupIndex = this.pickups.indexOf(pickup);
                     this.pickups.splice(powerupIndex, 1);
-                    this.player.notifyAllObservers();
+                    if (this.pickups[0]) {
+                        this.player.notifyAllObservers();
+                        this.player.boost();
+                    }
+                    else {
+                        this.scorePoint();
+                        console.log("picked up coin");
+                    }
                 }
             }
             for (var _d = 0, _e = this.fireballs; _d < _e.length; _d++) {
@@ -207,14 +214,15 @@ var Util = (function () {
 var Coin = (function (_super) {
     __extends(Coin, _super);
     function Coin() {
-        var _this = _super.call(this, "coin") || this;
-        _this.behavior = new slowBehavior(_this);
-        return _this;
+        return _super.call(this, "coin") || this;
     }
     Coin.prototype.update = function () {
-        this.draw();
+        this.posx = this.posx -= 1;
         this.enemyWindowCol();
-        this.behavior.performUpdate();
+        this.draw();
+    };
+    Coin.prototype.removeMe = function () {
+        this.element.remove();
     };
     return Coin;
 }(GameObject));
@@ -251,6 +259,7 @@ var Player = (function (_super) {
         _this.speedy = 0;
         _this.x = 0;
         _this.cooldown = 0;
+        _this.behavior = new fastBehavior(_this, _this);
         return _this;
     }
     Player.prototype.update = function () {
@@ -264,6 +273,9 @@ var Player = (function (_super) {
         }
         this.playerWindowCol();
         this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px)";
+    };
+    Player.prototype.boost = function () {
+        this.behavior.playerMovement();
     };
     Player.prototype.add = function (o) {
         this.observers.push(o);
@@ -305,18 +317,15 @@ var Player = (function (_super) {
 var Powerup = (function (_super) {
     __extends(Powerup, _super);
     function Powerup() {
-        var _this = _super.call(this, "powerup") || this;
-        _this.speedx = 1;
-        return _this;
+        return _super.call(this, "powerup") || this;
     }
     Powerup.prototype.update = function () {
-        this.posx -= this.speedx;
+        this.posx = this.posx -= 2;
         this.enemyWindowCol();
         this.draw();
     };
     Powerup.prototype.removeMe = function () {
         this.element.remove();
-        console.log("Removed monster");
     };
     return Powerup;
 }(GameObject));
@@ -324,9 +333,9 @@ var Eye = (function (_super) {
     __extends(Eye, _super);
     function Eye(p) {
         var _this = _super.call(this, "eye") || this;
-        _this.behavior = new fastBehavior(_this);
         _this.player = p;
         p.add(_this);
+        _this.behavior = new fastBehavior(_this, _this.player);
         return _this;
     }
     Eye.prototype.update = function () {
@@ -335,11 +344,7 @@ var Eye = (function (_super) {
         this.draw();
     };
     Eye.prototype.notify = function () {
-        var _this = this;
-        setTimeout(function () {
-            _this.speedx = 0;
-            _this.posx = _this.posx -= 0;
-        }, 5000);
+        this.posx = 0;
     };
     return Eye;
 }(GameObject));
@@ -347,9 +352,9 @@ var Ghost = (function (_super) {
     __extends(Ghost, _super);
     function Ghost(p) {
         var _this = _super.call(this, "ghost") || this;
-        _this.behavior = new fastBehavior(_this);
         _this.player = p;
         p.add(_this);
+        _this.behavior = new fastBehavior(_this, _this.player);
         return _this;
     }
     Ghost.prototype.update = function () {
@@ -359,10 +364,8 @@ var Ghost = (function (_super) {
     };
     Ghost.prototype.notify = function () {
         var _this = this;
-        setTimeout(function () {
-            _this.speedx = 0;
-            _this.posx = _this.posx -= 0;
-        }, 5000);
+        this.speedx = 0;
+        setTimeout(function () { return _this.speedx = 3; }, 3000);
     };
     return Ghost;
 }(GameObject));
@@ -370,9 +373,9 @@ var Skeleton = (function (_super) {
     __extends(Skeleton, _super);
     function Skeleton(p) {
         var _this = _super.call(this, "skeleton") || this;
-        _this.behavior = new fastBehavior(_this);
         _this.player = p;
         p.add(_this);
+        _this.behavior = new fastBehavior(_this, _this.player);
         return _this;
     }
     Skeleton.prototype.update = function () {
@@ -381,11 +384,7 @@ var Skeleton = (function (_super) {
         this.draw();
     };
     Skeleton.prototype.notify = function () {
-        var _this = this;
-        setTimeout(function () {
-            _this.speedx = 0;
-            _this.posx = _this.posx -= 0;
-        }, 5000);
+        this.posx = 0;
     };
     return Skeleton;
 }(GameObject));
@@ -404,23 +403,22 @@ var Slime = (function (_super) {
         this.draw();
     };
     Slime.prototype.notify = function () {
-        var _this = this;
-        setTimeout(function () {
-            _this.speedx = 0;
-            _this.posx = _this.posx -= 0;
-            console.log('hit the slime');
-        }, 5000);
+        this.posx = 0;
     };
     return Slime;
 }(GameObject));
 var fastBehavior = (function () {
-    function fastBehavior(enemy) {
+    function fastBehavior(enemy, player) {
         this.enemy = enemy;
+        this.player = player;
         var r = Math.floor(Math.random() * 4) + 3;
         this.speedx = r;
     }
     fastBehavior.prototype.performUpdate = function () {
         this.enemy.posx = this.enemy.posx -= this.speedx;
+    };
+    fastBehavior.prototype.playerMovement = function () {
+        this.player.speedy += 5;
     };
     return fastBehavior;
 }());
@@ -432,6 +430,8 @@ var slowBehavior = (function () {
     }
     slowBehavior.prototype.performUpdate = function () {
         this.enemy.posx = this.enemy.posx -= this.speedx;
+    };
+    slowBehavior.prototype.playerMovement = function () {
     };
     return slowBehavior;
 }());

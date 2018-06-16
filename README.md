@@ -38,17 +38,17 @@ De Singleton is toegepast in Game.ts. Hier is voor gekozen omdat het maar éénm
 ## Polymorfisme
 Beschrijf van minimaal 2 plekken uit jouw code waar en waarom er gebruik is gemaakt van polymorfisme.
 1. In Game word er een array gemaakt van gameObject, waar verschillende soorten enemies naar gepusht worden, omdat er zo makkelijk nieuwe enemies toegevoegd kunnen worden.
-2. ...
+2. In Game worden er pickups gepusht in een array van gameObject. Dit zijn de objecten die opgepakt kunnen worden door de speler.
 
 ## Strategy
 - De fastBehavior en slowBehavior zijn twee klasses die implementeren van MoveBehavior. Deze twee manipuleren de snelheid van elk type enemy.
-- ...
+- De snelheid wordt gemanipuleerd bij het oppakken van een powerup. Dit wordt afgehandeld in fastBehavior.
 
 ## Observer
-- ...
+- De observer is toegepast bij de speler en enemies. Wanneer de speler een powerup pakt, worden alle enemies geschoven naar de rechterkant van het scherm, waarbij er weer ruimte ontstaat voor de speler.
 
 ## Gameplay componenten
-1. ...
-2. ...
-3. ...
-4. ...
+1. Te spelen op een mobiele telefoon met touch controls (komt nog...)
+2. Solide UI en grafisch ontwerp
+3. Muziek en geluid (komt nog...)
+4. Pauzescherm met settings (komt nog...)

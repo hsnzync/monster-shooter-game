@@ -6,9 +6,9 @@ class Skeleton extends GameObject implements Observer {
     constructor(p: Player) {
 
         super("skeleton")
-        this.behavior = new fastBehavior(this)
         this.player = p
         p.add(this)
+        this.behavior = new fastBehavior(this, this.player)
 
     }
 
@@ -19,10 +19,7 @@ class Skeleton extends GameObject implements Observer {
     }
 
     public notify(): void {
-        setTimeout(() => {
-            this.speedx = 0
-            this.posx = this.posx -= 0
-        }, 5000);
+        this.posx = 0
     }
     
 }

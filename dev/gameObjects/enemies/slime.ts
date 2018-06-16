@@ -19,11 +19,7 @@ class Slime extends GameObject implements Observer {
     }
 
     public notify(): void {
-        setTimeout(() => {
-            this.speedx = 0
-            this.posx = this.posx -= 0
-            console.log('hit the slime')
-        }, 5000);
+        this.posx = 0
     }
     
 }

@@ -9,9 +9,9 @@ class Game {
     private topbar:HTMLElement
     private bg:HTMLElement
     private player:Player
-    private objects:GameObject[] = []
+    private enemies:GameObject[] = []
     private fireballs:Fireball[] = []
-    private pickups:Powerup[] = []
+    private pickups:GameObject[] = []
     private xPos:number
 
     private constructor() {
@@ -25,7 +25,7 @@ class Game {
 
         this.player = new Player()
 
-        this.objects.push(
+        this.enemies.push(
             new Ghost(this.player),
             new Slime(this.player),
             new Eye(this.player),
@@ -41,12 +41,13 @@ class Game {
             if(this.pickups.length == 0) {
 
                 this.pickups.push(
-                    new Powerup()
+                    new Powerup(),
+                    new Coin ()
                 )
 
             }
 
-        }, 3000);
+        }, 10000);
 
     }
 
@@ -65,7 +66,7 @@ class Game {
         
         this.player.update()
         
-        for(let enemy of this.objects) {
+        for(let enemy of this.enemies) {
             enemy.update()
 
             if( Util.checkCollision( this.player.getBoundingClientRect(), enemy.getBoundingClientRect())) {
@@ -85,7 +86,14 @@ class Game {
                     let powerupIndex = this.pickups.indexOf(pickup)
                     this.pickups.splice(powerupIndex, 1)
 
-                    this.player.notifyAllObservers()
+                    if(this.pickups[0]) {
+                        this.player.notifyAllObservers()
+                        this.player.boost()
+                    }
+                    else {
+                        this.scorePoint()
+                        console.log("picked up coin")
+                    }
 
                 }
                 
@@ -118,17 +126,9 @@ class Game {
             finalscore.style.display = "block"
             finalscore.style.marginLeft = `${window.innerWidth / 2 - 250}px`
             finalscore.style.marginTop = `${window.innerHeight / 2 - 50}px`
-            //this.statusbar.remove()
-            //this.textfield.remove()
         } else {
             requestAnimationFrame(()=>this.gameLoop())
         }
-
-        // if (this.score == 4) {
-        //     this.enemies.push(
-        //         new Powerup()
-        //     )
-        // }
     }
 
     public fire() {

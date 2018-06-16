@@ -110,6 +110,15 @@ powerup {
     background-repeat: no-repeat;
 }
 
+coin {
+    width: 65px;
+    height: 65px;
+    background-position-y: -10px;
+    background-size: 65px;
+    background-image: url(../images/coin.gif);
+    background-repeat: no-repeat;
+}
+
 fireball {
     width: 60px;
     height: 20px;
