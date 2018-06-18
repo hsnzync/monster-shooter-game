@@ -8,7 +8,7 @@ class Skeleton extends GameObject implements Observer {
         super("skeleton")
         this.player = p
         p.add(this)
-        this.behavior = new fastBehavior(this, this.player)
+        this.behavior = new fastBehavior(this)
 
     }
 
@@ -20,6 +20,12 @@ class Skeleton extends GameObject implements Observer {
 
     public notify(): void {
         this.posx = 0
+
+        this.behavior = new slowBehavior(this)
+
+        setTimeout(() => { 
+            this.behavior = new fastBehavior(this)
+        }, 5000)
     }
     
 }

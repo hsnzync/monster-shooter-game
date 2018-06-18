@@ -8,7 +8,8 @@ class Ghost extends GameObject implements Observer {
         super("ghost")
         this.player = p
         p.add(this)
-        this.behavior = new fastBehavior(this, this.player)
+        this.behavior = new fastBehavior(this)
+        this.speedx = 10
 
     }
 
@@ -20,10 +21,14 @@ class Ghost extends GameObject implements Observer {
 
     public notify(): void {    
 
-        this.speedx = 0
-        //this.speedx = 0
+        this.posx = 0
 
-        setTimeout(() => this.speedx = 3, 3000);
+        this.behavior = new slowBehavior(this)
+
+        setTimeout(() => { 
+            this.behavior = new fastBehavior(this)
+        }, 5000)
+
     }
     
 }

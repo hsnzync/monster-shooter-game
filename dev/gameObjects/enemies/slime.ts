@@ -20,6 +20,12 @@ class Slime extends GameObject implements Observer {
 
     public notify(): void {
         this.posx = 0
+
+        this.behavior = new slowBehavior(this)
+
+        setTimeout(() => { 
+            this.behavior = new fastBehavior(this)
+        }, 5000)
     }
     
 }

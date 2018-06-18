@@ -10,7 +10,7 @@ class Eye extends GameObject implements Observer {
         this.player = p
         p.add(this)
         
-        this.behavior = new fastBehavior(this, this.player)
+        this.behavior = new fastBehavior(this)
         
     }
     
@@ -22,6 +22,12 @@ class Eye extends GameObject implements Observer {
     }
     public notify(): void {
         this.posx = 0
+
+        this.behavior = new slowBehavior(this)
+
+        setTimeout(() => { 
+            this.behavior = new fastBehavior(this)
+        }, 5000)
     }
     
 }

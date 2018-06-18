@@ -15,8 +15,4 @@ class slowBehavior implements MoveBehavior {
         this.enemy.posx = this.enemy.posx -= this.speedx
         
     }
-
-    playerMovement(): void {
-        //
-    }
 }

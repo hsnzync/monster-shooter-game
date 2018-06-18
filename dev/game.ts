@@ -13,6 +13,8 @@ class Game {
     private fireballs:Fireball[] = []
     private pickups:GameObject[] = []
     private xPos:number
+    private audio:HTMLAudioElement
+    private overworld:any
 
     private constructor() {
         this.textfield = document.getElementsByTagName("textfield")[0] as HTMLElement
@@ -20,6 +22,9 @@ class Game {
         this.topbar = document.getElementsByTagName("topbar")[0] as HTMLElement
         this.bg = document.getElementsByTagName("background")[0] as HTMLElement
         window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
+
+        this.overworld = this.audio = new Audio('../docs/sounds/overworld.mp3')
+        this.overworld.play()
 
         this.topbar.style.width = `${window.innerWidth}px`
 
@@ -73,6 +78,9 @@ class Game {
                 enemy.reset()
                 this.removeLife()
                 this.score --
+
+                let hitSound = this.audio = new Audio('../docs/sounds/hit.mp3')
+                hitSound.play()
             }
 
             for(let pickup of this.pickups) {
@@ -80,19 +88,20 @@ class Game {
                 pickup.update()
 
                 if( Util.checkCollision( this.player.getBoundingClientRect(), pickup.getBoundingClientRect())) {
-                    
+
                     pickup.removeMe()
-                    console.log('powerup picked up')
                     let powerupIndex = this.pickups.indexOf(pickup)
                     this.pickups.splice(powerupIndex, 1)
 
                     if(this.pickups[0]) {
                         this.player.notifyAllObservers()
-                        this.player.boost()
+                        let powerupSound = this.audio = new Audio('../docs/sounds/powerup.mp3')
+                        powerupSound.play()
                     }
                     else {
                         this.scorePoint()
-                        console.log("picked up coin")
+                        let coinSound = this.audio = new Audio('../docs/sounds/coin.mp3')
+                        coinSound.play()
                     }
 
                 }
@@ -103,16 +112,12 @@ class Game {
                 fire.update()
                 
                 if( Util.checkCollision( fire.getBoundingClientRect(), enemy.getBoundingClientRect())) {
-                    //enemy.removeMe()
                     fire.removeMe()
                     this.scorePoint()
                     enemy.reset()
 
                     let fireballIndex = this.fireballs.indexOf(fire)
                     this.fireballs.splice(fireballIndex, 1)
-
-                    //let enemyIndex = this.enemies.indexOf(enemy)
-                    //this.enemies.splice(enemyIndex, 1)
                     
                     enemy.posx = window.innerWidth - 65
                 }
@@ -120,12 +125,16 @@ class Game {
         }
         
         if(this.life >= 6) {
+            this.overworld.pause()
             let finalscore = document.getElementsByTagName("finalscore")[0] as HTMLElement
 
             finalscore.innerHTML = "GAME OVER"
             finalscore.style.display = "block"
             finalscore.style.marginLeft = `${window.innerWidth / 2 - 250}px`
             finalscore.style.marginTop = `${window.innerHeight / 2 - 50}px`
+
+            let gameover = this.audio = new Audio('../docs/sounds/game_over.mp3')
+            gameover.play()
         } else {
             requestAnimationFrame(()=>this.gameLoop())
         }
@@ -137,6 +146,9 @@ class Game {
                 new Fireball(this.player.posy)
             )
         }
+
+        let fireSound = this.audio = new Audio('../docs/sounds/laser.mp3')
+        fireSound.play()
 
         console.log("fire");
         console.log(this.player.posy)

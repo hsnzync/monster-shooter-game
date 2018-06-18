@@ -6,7 +6,6 @@ class Player extends GameObject {
     public x: number
     public cooldown : number
     private observers: Observer[] = []
-    private behavior : MoveBehavior
 
     constructor() {
         super( "player")
@@ -20,8 +19,6 @@ class Player extends GameObject {
         this.speedy = 0
         this.x = 0
         this.cooldown = 0
-
-        this.behavior = new fastBehavior(this, this)
 
     }
 
@@ -45,10 +42,6 @@ class Player extends GameObject {
         
     }
 
-    public boost() {
-        this.behavior.playerMovement()
-    }
-
     public add(o:Observer):void {
         this.observers.push(o)
     }
@@ -63,10 +56,10 @@ class Player extends GameObject {
     onKeyDown(event:KeyboardEvent):void {
         switch(event.keyCode){
         case 38:
-            this.speedy = -2
+            this.speedy = -5
             break
         case 40:
-            this.speedy = 2
+            this.speedy = 5
             break
         case 32:
             if (this.cooldown == 0) {

@@ -22,6 +22,8 @@ var Game = (function () {
         this.topbar = document.getElementsByTagName("topbar")[0];
         this.bg = document.getElementsByTagName("background")[0];
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
+        this.overworld = this.audio = new Audio('../docs/sounds/overworld.mp3');
+        this.overworld.play();
         this.topbar.style.width = window.innerWidth + "px";
         this.player = new Player();
         this.enemies.push(new Ghost(this.player), new Slime(this.player), new Eye(this.player), new Skeleton(this.player));
@@ -51,22 +53,25 @@ var Game = (function () {
                 enemy.reset();
                 this.removeLife();
                 this.score--;
+                var hitSound = this.audio = new Audio('../docs/sounds/hit.mp3');
+                hitSound.play();
             }
             for (var _b = 0, _c = this.pickups; _b < _c.length; _b++) {
                 var pickup = _c[_b];
                 pickup.update();
                 if (Util.checkCollision(this.player.getBoundingClientRect(), pickup.getBoundingClientRect())) {
                     pickup.removeMe();
-                    console.log('powerup picked up');
                     var powerupIndex = this.pickups.indexOf(pickup);
                     this.pickups.splice(powerupIndex, 1);
                     if (this.pickups[0]) {
                         this.player.notifyAllObservers();
-                        this.player.boost();
+                        var powerupSound = this.audio = new Audio('../docs/sounds/powerup.mp3');
+                        powerupSound.play();
                     }
                     else {
                         this.scorePoint();
-                        console.log("picked up coin");
+                        var coinSound = this.audio = new Audio('../docs/sounds/coin.mp3');
+                        coinSound.play();
                     }
                 }
             }
@@ -84,11 +89,14 @@ var Game = (function () {
             }
         }
         if (this.life >= 6) {
+            this.overworld.pause();
             var finalscore = document.getElementsByTagName("finalscore")[0];
             finalscore.innerHTML = "GAME OVER";
             finalscore.style.display = "block";
             finalscore.style.marginLeft = window.innerWidth / 2 - 250 + "px";
             finalscore.style.marginTop = window.innerHeight / 2 - 50 + "px";
+            var gameover = this.audio = new Audio('../docs/sounds/game_over.mp3');
+            gameover.play();
         }
         else {
             requestAnimationFrame(function () { return _this.gameLoop(); });
@@ -98,6 +106,8 @@ var Game = (function () {
         if (this.fireballs.length >= 0) {
             this.fireballs.push(new Fireball(this.player.posy));
         }
+        var fireSound = this.audio = new Audio('../docs/sounds/laser.mp3');
+        fireSound.play();
         console.log("fire");
         console.log(this.player.posy);
     };
@@ -259,7 +269,6 @@ var Player = (function (_super) {
         _this.speedy = 0;
         _this.x = 0;
         _this.cooldown = 0;
-        _this.behavior = new fastBehavior(_this, _this);
         return _this;
     }
     Player.prototype.update = function () {
@@ -274,9 +283,6 @@ var Player = (function (_super) {
         this.playerWindowCol();
         this.element.style.transform = "translate(" + this.posx + "px, " + this.posy + "px)";
     };
-    Player.prototype.boost = function () {
-        this.behavior.playerMovement();
-    };
     Player.prototype.add = function (o) {
         this.observers.push(o);
     };
@@ -288,10 +294,10 @@ var Player = (function (_super) {
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {
             case 38:
-                this.speedy = -2;
+                this.speedy = -5;
                 break;
             case 40:
-                this.speedy = 2;
+                this.speedy = 5;
                 break;
             case 32:
                 if (this.cooldown == 0) {
@@ -335,7 +341,7 @@ var Eye = (function (_super) {
         var _this = _super.call(this, "eye") || this;
         _this.player = p;
         p.add(_this);
-        _this.behavior = new fastBehavior(_this, _this.player);
+        _this.behavior = new fastBehavior(_this);
         return _this;
     }
     Eye.prototype.update = function () {
@@ -344,7 +350,12 @@ var Eye = (function (_super) {
         this.draw();
     };
     Eye.prototype.notify = function () {
+        var _this = this;
         this.posx = 0;
+        this.behavior = new slowBehavior(this);
+        setTimeout(function () {
+            _this.behavior = new fastBehavior(_this);
+        }, 5000);
     };
     return Eye;
 }(GameObject));
@@ -354,7 +365,8 @@ var Ghost = (function (_super) {
         var _this = _super.call(this, "ghost") || this;
         _this.player = p;
         p.add(_this);
-        _this.behavior = new fastBehavior(_this, _this.player);
+        _this.behavior = new fastBehavior(_this);
+        _this.speedx = 10;
         return _this;
     }
     Ghost.prototype.update = function () {
@@ -364,8 +376,11 @@ var Ghost = (function (_super) {
     };
     Ghost.prototype.notify = function () {
         var _this = this;
-        this.speedx = 0;
-        setTimeout(function () { return _this.speedx = 3; }, 3000);
+        this.posx = 0;
+        this.behavior = new slowBehavior(this);
+        setTimeout(function () {
+            _this.behavior = new fastBehavior(_this);
+        }, 5000);
     };
     return Ghost;
 }(GameObject));
@@ -375,7 +390,7 @@ var Skeleton = (function (_super) {
         var _this = _super.call(this, "skeleton") || this;
         _this.player = p;
         p.add(_this);
-        _this.behavior = new fastBehavior(_this, _this.player);
+        _this.behavior = new fastBehavior(_this);
         return _this;
     }
     Skeleton.prototype.update = function () {
@@ -384,7 +399,12 @@ var Skeleton = (function (_super) {
         this.draw();
     };
     Skeleton.prototype.notify = function () {
+        var _this = this;
         this.posx = 0;
+        this.behavior = new slowBehavior(this);
+        setTimeout(function () {
+            _this.behavior = new fastBehavior(_this);
+        }, 5000);
     };
     return Skeleton;
 }(GameObject));
@@ -403,22 +423,23 @@ var Slime = (function (_super) {
         this.draw();
     };
     Slime.prototype.notify = function () {
+        var _this = this;
         this.posx = 0;
+        this.behavior = new slowBehavior(this);
+        setTimeout(function () {
+            _this.behavior = new fastBehavior(_this);
+        }, 5000);
     };
     return Slime;
 }(GameObject));
 var fastBehavior = (function () {
-    function fastBehavior(enemy, player) {
+    function fastBehavior(enemy) {
         this.enemy = enemy;
-        this.player = player;
         var r = Math.floor(Math.random() * 4) + 3;
         this.speedx = r;
     }
     fastBehavior.prototype.performUpdate = function () {
         this.enemy.posx = this.enemy.posx -= this.speedx;
-    };
-    fastBehavior.prototype.playerMovement = function () {
-        this.player.speedy += 5;
     };
     return fastBehavior;
 }());
@@ -430,8 +451,6 @@ var slowBehavior = (function () {
     }
     slowBehavior.prototype.performUpdate = function () {
         this.enemy.posx = this.enemy.posx -= this.speedx;
-    };
-    slowBehavior.prototype.playerMovement = function () {
     };
     return slowBehavior;
 }());
