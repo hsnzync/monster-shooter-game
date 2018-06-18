@@ -97,6 +97,12 @@ class Game {
                         this.player.notifyAllObservers()
                         let powerupSound = this.audio = new Audio('../docs/sounds/powerup.mp3')
                         powerupSound.play()
+
+                        this.fireballs.push (
+                            new Fireball(this.player.posy),
+                            new Fireball(this.player.posy + 20),
+                            new Fireball(this.player.posy + 40)
+                        )
                     }
                     else {
                         this.scorePoint()
@@ -115,6 +121,9 @@ class Game {
                     fire.removeMe()
                     this.scorePoint()
                     enemy.reset()
+
+                    let hitEnemySound = this.audio = new Audio('../docs/sounds/hit2.mp3')
+                    hitEnemySound.play()
 
                     let fireballIndex = this.fireballs.indexOf(fire)
                     this.fireballs.splice(fireballIndex, 1)
