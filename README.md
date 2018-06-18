@@ -1,7 +1,7 @@
 # Inleverdocument PRG01-8
 
 ## Inleiding
-Als grootste superheld van Galaxy Apollo heb je de missie gekregen om planeet 553 veiliger maken. Er moeten zoveel mogelijk monsters vernietigd worden. Aan jouw taak om te overleven op dit planeet, zodat je jouw missie kunt voltooien.
+Als grootste superheld van Galaxy Apollo 53 heb je de missie gekregen om een onbekende planeet veiliger maken. De monsters op dit planeet zijn een bedreiging voor de hele Galaxy. Aan jouw taak om te overleven op dit planeet en zoveel mogelijk monsters te vernietigen, zodat je jouw missie kunt voltooien.
 
 ## Speelbare game
 - https://hsnzync.github.io/monster-shooter/
@@ -24,7 +24,7 @@ Open het project in Visual Studio Code
 - Watch: `Shift + CMD + B`
 
 ## Klassendiagram
-- ...
+![klassendiagram](https://user-images.githubusercontent.com/12610474/41525432-431f2382-72e1-11e8-9a59-36eb810c5895.png)
 
 ## Pull request
 https://github.com/Onurrr/typescript-game/pull/1
