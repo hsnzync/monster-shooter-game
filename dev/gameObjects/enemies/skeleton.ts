@@ -19,8 +19,6 @@ class Skeleton extends GameObject implements Observer {
     }
 
     public notify(): void {
-        this.posx = 0
-
         this.behavior = new slowBehavior(this)
 
         setTimeout(() => { 

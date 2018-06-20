@@ -354,7 +354,6 @@ var Eye = (function (_super) {
     };
     Eye.prototype.notify = function () {
         var _this = this;
-        this.posx = 0;
         this.behavior = new slowBehavior(this);
         setTimeout(function () {
             _this.behavior = new fastBehavior(_this);
@@ -379,7 +378,6 @@ var Ghost = (function (_super) {
     };
     Ghost.prototype.notify = function () {
         var _this = this;
-        this.posx = 0;
         this.behavior = new slowBehavior(this);
         setTimeout(function () {
             _this.behavior = new fastBehavior(_this);
@@ -403,7 +401,6 @@ var Skeleton = (function (_super) {
     };
     Skeleton.prototype.notify = function () {
         var _this = this;
-        this.posx = 0;
         this.behavior = new slowBehavior(this);
         setTimeout(function () {
             _this.behavior = new fastBehavior(_this);
@@ -427,7 +424,6 @@ var Slime = (function (_super) {
     };
     Slime.prototype.notify = function () {
         var _this = this;
-        this.posx = 0;
         this.behavior = new slowBehavior(this);
         setTimeout(function () {
             _this.behavior = new fastBehavior(_this);
