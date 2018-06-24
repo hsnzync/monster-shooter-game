@@ -6,6 +6,9 @@ Als grootste superheld van Galaxy Apollo 53 heb je de missie gekregen om een onb
 ## Speelbare game
 - https://hsnzync.github.io/monster-shooter/
 
+- Spatiebalk = schieten
+- Pijltjestoetsen = lopen
+
 ## Installatie
 
 #### Stap 1 (clonen):
@@ -38,17 +41,17 @@ De Singleton is toegepast in Game.ts. Hier is voor gekozen omdat het maar éénm
 ## Polymorfisme
 Beschrijf van minimaal 2 plekken uit jouw code waar en waarom er gebruik is gemaakt van polymorfisme.
 1. In Game word er een array gemaakt van gameObject, waar verschillende soorten enemies naar gepusht worden, omdat er zo makkelijk nieuwe enemies toegevoegd kunnen worden.
-2. In Game worden er pickups gepusht in een array van gameObject. Dit zijn de objecten die opgepakt kunnen worden door de speler.
+2. In Game worden er pickups gepusht in een array van gameObject. Dit zijn de objecten die opgepakt kunnen worden door de player.
 
 ## Strategy
 - De fastBehavior en slowBehavior zijn twee klasses die implementeren van MoveBehavior. Deze twee manipuleren de snelheid van elk type enemy.
 - De snelheid wordt gemanipuleerd bij het oppakken van een powerup. Dit wordt afgehandeld in fastBehavior.
 
 ## Observer
-- De observer is toegepast bij de speler en enemies. Wanneer de speler een powerup pakt, worden alle enemies geschoven naar de rechterkant van het scherm, waarbij er weer ruimte ontstaat voor de speler.
+- De observer is toegepast bij de player en enemies. Wanneer de player een powerup pakt, worden alle enemies langzamer en schiet de player eenmalig, extra vuurballen. Na 5 seconden wordt de fastBehavior toegepast op alle enemies.
 
 ## Gameplay componenten
-1. Te spelen op een mobiele telefoon met touch controls (komt nog...)
-2. Solide UI en grafisch ontwerp
-3. Muziek en geluid (komt nog...)
-4. Pauzescherm met settings (komt nog...)
+1. Solide UI en grafisch ontwerp
+2. Muziek en geluid
+3. Maakt gebruik van de `Howler Library`
+4. Te downloaden via een game platform `https://hsnzync.itch.io/monster-shooter`
