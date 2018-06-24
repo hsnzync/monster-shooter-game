@@ -56,10 +56,10 @@ class Player extends GameObject {
     onKeyDown(event:KeyboardEvent):void {
         switch(event.keyCode){
         case 38:
-            this.speedy = -5
+            this.speedy = -3
             break
         case 40:
-            this.speedy = 5
+            this.speedy = 3
             break
         case 32:
             if (this.cooldown == 0) {

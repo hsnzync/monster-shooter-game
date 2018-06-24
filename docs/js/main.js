@@ -22,7 +22,10 @@ var Game = (function () {
         this.topbar = document.getElementsByTagName("topbar")[0];
         this.bg = document.getElementsByTagName("background")[0];
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
-        this.overworld = this.audio = new Audio('../docs/sounds/overworld.mp3');
+        this.overworld = new Howl({
+            src: ['sounds/overworld.mp3'],
+            loop: true
+        });
         this.overworld.play();
         this.topbar.style.width = window.innerWidth + "px";
         this.player = new Player();
@@ -53,7 +56,10 @@ var Game = (function () {
                 enemy.reset();
                 this.removeLife();
                 this.score--;
-                var hitSound = this.audio = new Audio('../docs/sounds/hit.mp3');
+                var hitSound = new Howl({
+                    src: ['sounds/hit.mp3'],
+                    loop: false
+                });
                 hitSound.play();
             }
             for (var _b = 0, _c = this.pickups; _b < _c.length; _b++) {
@@ -65,13 +71,19 @@ var Game = (function () {
                     this.pickups.splice(powerupIndex, 1);
                     if (this.pickups[0]) {
                         this.player.notifyAllObservers();
-                        var powerupSound = this.audio = new Audio('../docs/sounds/powerup.mp3');
+                        var powerupSound = new Howl({
+                            src: ['sounds/powerup.mp3'],
+                            loop: false
+                        });
                         powerupSound.play();
                         this.fireballs.push(new Fireball(this.player.posy), new Fireball(this.player.posy + 20), new Fireball(this.player.posy + 40));
                     }
                     else {
                         this.scorePoint();
-                        var coinSound = this.audio = new Audio('../docs/sounds/coin.mp3');
+                        var coinSound = new Howl({
+                            src: ['sounds/coin.mp3'],
+                            loop: false
+                        });
                         coinSound.play();
                     }
                 }
@@ -83,7 +95,10 @@ var Game = (function () {
                     fire.removeMe();
                     this.scorePoint();
                     enemy.reset();
-                    var hitEnemySound = this.audio = new Audio('../docs/sounds/hit2.mp3');
+                    var hitEnemySound = new Howl({
+                        src: ['sounds/hit2.mp3'],
+                        loop: false
+                    });
                     hitEnemySound.play();
                     var fireballIndex = this.fireballs.indexOf(fire);
                     this.fireballs.splice(fireballIndex, 1);
@@ -98,7 +113,10 @@ var Game = (function () {
             finalscore.style.display = "block";
             finalscore.style.marginLeft = window.innerWidth / 2 - 250 + "px";
             finalscore.style.marginTop = window.innerHeight / 2 - 50 + "px";
-            var gameover = this.audio = new Audio('../docs/sounds/game_over.mp3');
+            var gameover = new Howl({
+                src: ['sounds/game_over.mp3'],
+                loop: false
+            });
             gameover.play();
         }
         else {
@@ -109,7 +127,10 @@ var Game = (function () {
         if (this.fireballs.length >= 0) {
             this.fireballs.push(new Fireball(this.player.posy));
         }
-        var fireSound = this.audio = new Audio('../docs/sounds/laser.mp3');
+        var fireSound = new Howl({
+            src: ['sounds/laser.mp3'],
+            loop: false
+        });
         fireSound.play();
         console.log("fire");
         console.log(this.player.posy);
@@ -297,10 +318,10 @@ var Player = (function (_super) {
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {
             case 38:
-                this.speedy = -5;
+                this.speedy = -3;
                 break;
             case 40:
-                this.speedy = 5;
+                this.speedy = 3;
                 break;
             case 32:
                 if (this.cooldown == 0) {

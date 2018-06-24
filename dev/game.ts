@@ -13,7 +13,7 @@ class Game {
     private fireballs:Fireball[] = []
     private pickups:GameObject[] = []
     private xPos:number
-    private audio:HTMLAudioElement
+    // private audio:HTMLAudioElement
     private overworld:any
 
     private constructor() {
@@ -23,7 +23,14 @@ class Game {
         this.bg = document.getElementsByTagName("background")[0] as HTMLElement
         window.addEventListener("keydown", (e:KeyboardEvent) => this.onKeyDown(e))
 
-        this.overworld = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/overworld.mp3')
+        // this.overworld = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/overworld.mp3')
+        // this.overworld.play()
+
+        this.overworld = new Howl({
+            src: ['sounds/overworld.mp3'],
+            loop: true
+        });
+
         this.overworld.play()
 
         this.topbar.style.width = `${window.innerWidth}px`
@@ -79,8 +86,15 @@ class Game {
                 this.removeLife()
                 this.score --
 
-                let hitSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/hit.mp3')
+                let hitSound = new Howl({
+                    src: ['sounds/hit.mp3'],
+                    loop: false
+                });
+        
                 hitSound.play()
+
+                // let hitSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/hit.mp3')
+                // hitSound.play()
             }
 
             for(let pickup of this.pickups) {
@@ -95,8 +109,16 @@ class Game {
 
                     if(this.pickups[0]) {
                         this.player.notifyAllObservers()
-                        let powerupSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/powerup.mp3')
+
+                        let powerupSound = new Howl({
+                            src: ['sounds/powerup.mp3'],
+                            loop: false
+                        });
+                
                         powerupSound.play()
+
+                        // let powerupSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/powerup.mp3')
+                        // powerupSound.play()
 
                         this.fireballs.push (
                             new Fireball(this.player.posy),
@@ -106,7 +128,14 @@ class Game {
                     }
                     else {
                         this.scorePoint()
-                        let coinSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/coin.mp3')
+                        // let coinSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/coin.mp3')
+                        // coinSound.play()
+                        
+                        let coinSound = new Howl({
+                            src: ['sounds/coin.mp3'],
+                            loop: false
+                        });
+                
                         coinSound.play()
                     }
 
@@ -122,7 +151,14 @@ class Game {
                     this.scorePoint()
                     enemy.reset()
 
-                    let hitEnemySound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/hit2.mp3')
+                    // let hitEnemySound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/hit2.mp3')
+                    // hitEnemySound.play()
+
+                    let hitEnemySound = new Howl({
+                        src: ['sounds/hit2.mp3'],
+                        loop: false
+                    });
+            
                     hitEnemySound.play()
 
                     let fireballIndex = this.fireballs.indexOf(fire)
@@ -142,8 +178,16 @@ class Game {
             finalscore.style.marginLeft = `${window.innerWidth / 2 - 250}px`
             finalscore.style.marginTop = `${window.innerHeight / 2 - 50}px`
 
-            let gameover = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/game_over.mp3')
+            // let gameover = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/game_over.mp3')
+            // gameover.play()
+
+            let gameover = new Howl({
+                src: ['sounds/game_over.mp3'],
+                loop: false
+            });
+    
             gameover.play()
+
         } else {
             requestAnimationFrame(()=>this.gameLoop())
         }
@@ -156,7 +200,14 @@ class Game {
             )
         }
 
-        let fireSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/laser.mp3')
+        // let fireSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/laser.mp3')
+        // fireSound.play()
+
+        let fireSound = new Howl({
+            src: ['sounds/laser.mp3'],
+            loop: false
+        });
+
         fireSound.play()
 
         console.log("fire");
