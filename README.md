@@ -54,4 +54,4 @@ Beschrijf van minimaal 2 plekken uit jouw code waar en waarom er gebruik is gema
 1. Solide UI en grafisch ontwerp
 2. Muziek en geluid
 3. Maakt gebruik van de `Howler Library`
-4. Te downloaden via een game platform `https://hsnzync.itch.io/monster-shooter`
+4. Te downloaden via een game platform `https://hsnzync.itch.io/monster-shooter?secret=TRWbxtRSu9O4Aj9rFq8MBr1JxRw`
