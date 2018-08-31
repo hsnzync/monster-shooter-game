@@ -45,6 +45,15 @@ class Player extends GameObject {
     public add(o:Observer):void {
         this.observers.push(o)
     }
+
+    // Dit is niet nodig / wordt nu nooit aangeroepen, aangezien je je enemies reset.
+    // Het is echter wel netjes om de functie te hebben.
+    public remove(o:Observer):void {
+        let index = this.observers.indexOf(o, 0);
+        if (index > -1) {
+            this.observers.splice(index, 1);
+        }
+    }
         
     public notifyAllObservers() : void {
 
