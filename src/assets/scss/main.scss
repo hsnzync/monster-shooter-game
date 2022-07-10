@@ -1,0 +1,158 @@
+body {
+  font-family: 'Menlo', Arial, Helvetica, sans-serif;
+  color: white;
+  overflow: hidden;
+  margin: 0px;
+  padding: 0px;
+  background-color: #333;
+  font-family: 'Press Start 2P', cursive;
+
+  game {
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    overflow: hidden;
+  }
+
+  game * {
+    position: absolute;
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+  }
+
+  ui {
+    pointer-events: none;
+    position: relative;
+    height: 100vh;
+    width: 100%;
+
+    topbar {
+      background: #248c76;
+      height: 65px;
+
+      healthbar {
+        background-image: url(../images/meter1.png);
+        background-repeat: no-repeat;
+        width: 182px;
+        height: 36px;
+        overflow: hidden;
+        background-position-y: -306px;
+        background-size: 182px;
+        margin: 16px;
+        left: 10px;
+        image-rendering: pixelated;
+      }
+
+      textfield {
+        font-size: 1.4em;
+        text-shadow: 0px 3px 0px rgba(25, 51, 37, 1);
+        color: rgb(30, 222, 126);
+        right: 20px;
+        font-weight: 800;
+        margin: 20px;
+      }
+    }
+
+    finalscore {
+      background-color: #000;
+      padding: 50px 100px;
+      width: calc(100vw - 200px);
+      line-height: 40px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 35px;
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+    }
+  }
+
+  player {
+    background-image: url(../images/player.gif);
+    background-repeat: no-repeat;
+    cursor: pointer;
+    width: 60px;
+    height: 65px;
+    background-size: 65px;
+  }
+
+  ghost {
+    width: 65px;
+    height: 65px;
+    background-size: 65px;
+    background-image: url(../images/ghost.gif);
+    background-repeat: no-repeat;
+  }
+
+  slime {
+    width: 65px;
+    height: 55px;
+    background-size: 65px;
+    background-position-y: -10px;
+    background-image: url(../images/slime.gif);
+    background-repeat: no-repeat;
+  }
+
+  skeleton {
+    width: 65px;
+    height: 65px;
+    background-size: 65px;
+    background-image: url(../images/skeleton.gif);
+    background-repeat: no-repeat;
+  }
+
+  eye {
+    width: 65px;
+    height: 50px;
+    background-position-y: -10px;
+    background-size: 65px;
+    background-image: url(../images/eye.gif);
+    background-repeat: no-repeat;
+  }
+
+  powerup {
+    width: 65px;
+    height: 65px;
+    background-position-y: -10px;
+    background-size: 65px;
+    background-image: url(../images/powerup.gif);
+    background-repeat: no-repeat;
+  }
+
+  coin {
+    width: 65px;
+    height: 65px;
+    background-position-y: -10px;
+    background-size: 65px;
+    background-image: url(../images/coin.gif);
+    background-repeat: no-repeat;
+  }
+
+  fireball {
+    width: 60px;
+    height: 20px;
+    background-position-y: -25px;
+    background-size: 65px;
+    background-image: url(../images/fireball.gif);
+    background-repeat: no-repeat;
+  }
+
+  background {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    background-image: url(../images/background.png);
+    image-rendering: pixelated;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    background-size: cover;
+  }
+
+  canvas#demoCanvas {
+    width: 100%;
+  }
+}
