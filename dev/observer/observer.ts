@@ -1,3 +1,0 @@
-interface Observer {
-    notify():void
-}
