@@ -1,4 +1,4 @@
-import { GameObject } from '../../gameObject'
+import { GameObject } from '../../game-object'
 import { Observer } from '../../observer/observer'
 import { MoveBehavior, fastBehavior, slowBehavior } from '../../behavior'
 import { Player } from '../player'

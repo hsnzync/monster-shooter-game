@@ -1,6 +1,6 @@
 import { Observer } from '../observer/observer'
 import { Game } from '../index'
-import { GameObject } from '../gameObject'
+import { GameObject } from '../game-object'
 
 export class Player extends GameObject {
   public posy: number

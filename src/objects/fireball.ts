@@ -1,4 +1,4 @@
-import { GameObject } from '../gameObject'
+import { GameObject } from '../game-object'
 
 export class Fireball extends GameObject {
   constructor(y: number) {

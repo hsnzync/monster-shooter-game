@@ -1,3 +1,3 @@
-export { fastBehavior } from './fastBehavior'
-export { slowBehavior } from './slowBehavior'
-export { MoveBehavior } from './moveBehavior'
+export { fastBehavior } from './fast-behavior'
+export { slowBehavior } from './slow-behavior'
+export { MoveBehavior } from './move-behavior'

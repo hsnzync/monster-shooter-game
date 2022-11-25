@@ -1,5 +1,5 @@
-import { MoveBehavior } from './moveBehavior'
-import { GameObject } from '../gameObject'
+import { MoveBehavior } from './move-behavior'
+import { GameObject } from '../game-object'
 
 export class fastBehavior implements MoveBehavior {
   private enemy: GameObject
