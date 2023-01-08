@@ -6,12 +6,11 @@ export class Coin extends GameObject {
   }
 
   public update(): void {
-    this.posx = this.posx -= 1
+    this.posX = this.posX -= 1
     this.enemyWindowCol()
     this.draw()
   }
-
-  public removeMe() {
+  public removeElement() {
     this.element.remove()
   }
 }

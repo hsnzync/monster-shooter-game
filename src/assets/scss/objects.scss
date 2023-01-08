@@ -1,0 +1,85 @@
+player {
+  background-image: url(../images/player.gif);
+  background-repeat: repeat-y !important;
+  width: 60px;
+  height: 75px;
+  background-size: 75px;
+  background-position-x: -5px;
+  display: block;
+  position: absolute;
+}
+
+ghost {
+  width: 65px;
+  height: 65px;
+  background-size: 65px;
+  background-image: url(../images/ghost.gif);
+  background-repeat: no-repeat;
+  display: block;
+  position: absolute;
+}
+
+slime {
+  width: 65px;
+  height: 55px;
+  background-size: 65px;
+  background-position-y: -10px;
+  background-image: url(../images/slime.gif);
+  background-repeat: no-repeat;
+  display: block;
+  position: absolute;
+}
+
+skeleton {
+  width: 65px;
+  height: 65px;
+  background-size: 65px;
+  background-image: url(../images/skeleton.gif);
+  background-repeat: no-repeat;
+  display: block;
+  position: absolute;
+}
+
+eye {
+  width: 65px;
+  height: 50px;
+  background-position-y: -10px;
+  background-size: 65px;
+  background-image: url(../images/eye.gif);
+  background-repeat: no-repeat;
+  display: block;
+  position: absolute;
+}
+
+powerup {
+  width: 65px;
+  height: 65px;
+  background-position-y: -10px;
+  background-size: 65px;
+  background-image: url(../images/powerup.gif);
+  background-repeat: no-repeat;
+  display: block;
+  position: absolute;
+}
+
+coin {
+  width: 65px;
+  height: 65px;
+  background-position-y: -10px;
+  background-size: 65px;
+  background-image: url(../images/coin.gif);
+  background-repeat: no-repeat;
+  display: block;
+  position: absolute;
+}
+
+fireball {
+  width: 60px;
+  height: 20px;
+  background-position-y: -25px;
+  background-size: 65px;
+  background-image: url(../images/fireball.gif);
+  background-repeat: no-repeat;
+  display: block;
+  position: absolute;
+}

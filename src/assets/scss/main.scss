@@ -1,53 +1,60 @@
+@import url('objects.scss');
+
 body {
   font-family: 'Menlo', Arial, Helvetica, sans-serif;
   color: white;
   overflow: hidden;
   margin: 0px;
   padding: 0px;
-  background-color: #333;
+  background: linear-gradient(-45deg, #4e1c9e, #23479b, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  height: 100vh;
   font-family: 'Press Start 2P', cursive;
 
   game {
-    width: 100vw;
-    height: 100vh;
-    background-color: black;
+    width: 800px;
+    height: 600px;
     overflow: hidden;
-  }
-
-  game * {
+    margin: auto;
     position: absolute;
-    display: block;
-    margin: 0px;
-    padding: 0px;
-    box-sizing: border-box;
-    background-repeat: no-repeat;
-  }
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 10px;
+    border: 15px solid #0000001a;
 
-  ui {
-    pointer-events: none;
-    position: relative;
-    height: 100vh;
-    width: 100%;
+    background-image: url(../images/background.png);
+    image-rendering: pixelated;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    background-size: cover;
 
     topbar {
       background: #248c76;
       height: 65px;
+      width: 100%;
+      display: inline-flex;
+      position: relative;
 
       healthbar {
         background-image: url(../images/meter1.png);
         background-repeat: no-repeat;
+        position: absolute;
         width: 182px;
         height: 36px;
         overflow: hidden;
         background-position-y: -306px;
         background-size: 182px;
         margin: 16px;
-        left: 10px;
+        left: 20px;
         image-rendering: pixelated;
       }
 
-      textfield {
-        font-size: 1.4em;
+      scoreboard {
+        position: absolute;
+        font-size: 25px;
         text-shadow: 0px 3px 0px rgba(25, 51, 37, 1);
         color: rgb(30, 222, 126);
         right: 20px;
@@ -57,102 +64,36 @@ body {
     }
 
     finalscore {
-      background-color: #000;
-      padding: 50px 100px;
-      width: calc(100vw - 200px);
-      line-height: 40px;
+      background-color: #000000;
+      width: 400px;
+      height: 200px;
       margin: 0 auto;
-      text-align: center;
-      font-size: 35px;
       position: relative;
       top: 50%;
       transform: translateY(-50%);
       display: none;
+      padding: 20px;
+
+      span {
+        text-align: center;
+        font-size: 25px;
+        line-height: 40px;
+        padding: 25px;
+        margin: auto;
+        position: relative;
+      }
     }
   }
+}
 
-  player {
-    background-image: url(../images/player.gif);
-    background-repeat: no-repeat;
-    cursor: pointer;
-    width: 60px;
-    height: 65px;
-    background-size: 65px;
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
   }
-
-  ghost {
-    width: 65px;
-    height: 65px;
-    background-size: 65px;
-    background-image: url(../images/ghost.gif);
-    background-repeat: no-repeat;
+  50% {
+    background-position: 100% 50%;
   }
-
-  slime {
-    width: 65px;
-    height: 55px;
-    background-size: 65px;
-    background-position-y: -10px;
-    background-image: url(../images/slime.gif);
-    background-repeat: no-repeat;
-  }
-
-  skeleton {
-    width: 65px;
-    height: 65px;
-    background-size: 65px;
-    background-image: url(../images/skeleton.gif);
-    background-repeat: no-repeat;
-  }
-
-  eye {
-    width: 65px;
-    height: 50px;
-    background-position-y: -10px;
-    background-size: 65px;
-    background-image: url(../images/eye.gif);
-    background-repeat: no-repeat;
-  }
-
-  powerup {
-    width: 65px;
-    height: 65px;
-    background-position-y: -10px;
-    background-size: 65px;
-    background-image: url(../images/powerup.gif);
-    background-repeat: no-repeat;
-  }
-
-  coin {
-    width: 65px;
-    height: 65px;
-    background-position-y: -10px;
-    background-size: 65px;
-    background-image: url(../images/coin.gif);
-    background-repeat: no-repeat;
-  }
-
-  fireball {
-    width: 60px;
-    height: 20px;
-    background-position-y: -25px;
-    background-size: 65px;
-    background-image: url(../images/fireball.gif);
-    background-repeat: no-repeat;
-  }
-
-  background {
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    background-image: url(../images/background.png);
-    image-rendering: pixelated;
-    background-repeat: repeat-x;
-    background-position: bottom;
-    background-size: cover;
-  }
-
-  canvas#demoCanvas {
-    width: 100%;
+  100% {
+    background-position: 0% 50%;
   }
 }

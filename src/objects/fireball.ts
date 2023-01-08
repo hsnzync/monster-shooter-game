@@ -1,23 +1,21 @@
 import { GameObject } from '../game-object'
 
 export class Fireball extends GameObject {
-  constructor(y: number) {
+  constructor(x: number, y: number) {
     super('fireball')
 
-    this.speedx = 2
-    this.posx = 80
-    this.posy = y
+    this.posX = x
+    this.posY = y
   }
 
   public update(): void {
-    this.posx = this.posx += this.speedx
+    this.posX = this.posX += 2
 
     this.draw()
-    this.element.style.transform = `translate(${this.posx}px, ${this.posy}px)`
+    this.element.style.transform = `translate(${this.posX}px, ${this.posY}px)`
   }
 
-  public removeMe() {
+  public removeElement() {
     this.element.remove()
-    console.log('Removed monster')
   }
 }

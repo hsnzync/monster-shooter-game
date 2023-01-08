@@ -3,15 +3,15 @@ import { GameObject } from '../game-object'
 
 export class slowBehavior implements MoveBehavior {
   private enemy: GameObject
-  private speedx: number
+  private speedX: number
 
   constructor(enemy: GameObject) {
     this.enemy = enemy
     let r = Math.floor(Math.random() * 3) + 1
-    this.speedx = r
+    this.speedX = r
   }
 
   public performUpdate() {
-    this.enemy.posx = this.enemy.posx -= this.speedx
+    this.enemy.posX = this.enemy.posX -= this.speedX
   }
 }

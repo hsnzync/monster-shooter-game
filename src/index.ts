@@ -13,40 +13,44 @@ export class Game {
 
   private score: number = 0
   private life: number = 0
-  private textfield: HTMLElement
-  private healthbar: HTMLElement
+
+  private scoreBoard: HTMLElement
+  private healthBar: HTMLElement
   private topbar: HTMLElement
-  private bg: HTMLElement
+  private finalScore: HTMLElement
+  private game: HTMLElement
+
   private player: Player
   private enemies: GameObject[] = []
   private fireballs: Fireball[] = []
+  // private fireballs: Fireball[] = []
   private pickups: GameObject[] = []
-  private xPos: number
+  private backgroundPosX: number
   // private audio:HTMLAudioElement
   private overworld: any
 
   private constructor() {
-    this.textfield = document.getElementsByTagName(
-      'textfield'
+    this.game = document.getElementsByTagName('game')[0] as HTMLElement
+    this.topbar = document.getElementsByTagName('topbar')[0] as HTMLElement
+    this.scoreBoard = document.getElementsByTagName(
+      'scoreboard'
     )[0] as HTMLElement
-    this.healthbar = document.getElementsByTagName(
+    this.healthBar = document.getElementsByTagName(
       'healthbar'
     )[0] as HTMLElement
-    this.topbar = document.getElementsByTagName('topbar')[0] as HTMLElement
-    this.bg = document.getElementsByTagName('background')[0] as HTMLElement
+    this.scoreBoard.innerHTML = `Your score: ${this.score}`
+
     window.addEventListener('keydown', (e: KeyboardEvent) => this.onKeyDown(e))
 
     // this.overworld = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/overworld.mp3')
     // this.overworld.play()
 
-    this.overworld = new Howl({
-      src: ['src/assets/sounds/overworld.mp3'],
-      loop: true,
-    })
+    // this.overworld = new Howl({
+    //   src: ['src/assets/sounds/overworld.mp3'],
+    //   loop: true,
+    // })
 
-    this.overworld.play()
-
-    this.topbar.style.width = `${window.innerWidth}px`
+    // this.overworld.play()
 
     this.player = new Player()
 
@@ -57,7 +61,7 @@ export class Game {
       new Skeleton(this.player)
     )
 
-    this.xPos = 0
+    this.backgroundPosX = 0
 
     this.gameLoop()
 
@@ -77,9 +81,8 @@ export class Game {
 
   public gameLoop(): void {
     //requestAnimationFrame(() => this.gameLoop())
-
-    this.xPos = this.xPos - 2
-    this.bg.style.backgroundPosition = this.xPos + 'px 0px'
+    this.backgroundPosX = this.backgroundPosX - 2
+    this.game.style.backgroundPosition = `${this.backgroundPosX}px 0px`
 
     this.player.update()
 
@@ -101,7 +104,7 @@ export class Game {
           loop: false,
         })
 
-        hitSound.play()
+        // hitSound.play()
 
         // let hitSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/hit.mp3')
         // hitSound.play()
@@ -116,7 +119,7 @@ export class Game {
             pickup.getBoundingClientRect()
           )
         ) {
-          pickup.removeMe()
+          pickup.removeElement()
           let powerupIndex = this.pickups.indexOf(pickup)
           this.pickups.splice(powerupIndex, 1)
 
@@ -128,16 +131,18 @@ export class Game {
               loop: false,
             })
 
-            powerupSound.play()
+            // powerupSound.play()
 
             // let powerupSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/powerup.mp3')
             // powerupSound.play()
 
+            if (this.fireballs.length) this.fireballs = []
             this.fireballs.push(
-              new Fireball(this.player.posy),
-              new Fireball(this.player.posy + 20),
-              new Fireball(this.player.posy + 40)
+              new Fireball(this.player.posX, this.player.posY),
+              new Fireball(this.player.posX, this.player.posY + 20),
+              new Fireball(this.player.posX, this.player.posY + 40)
             )
+            console.log(this.fireballs)
           } else {
             this.scorePoint()
             // let coinSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/coin.mp3')
@@ -148,72 +153,63 @@ export class Game {
               loop: false,
             })
 
-            coinSound.play()
+            // coinSound.play()
           }
         }
       }
 
-      for (let fire of this.fireballs) {
-        fire.update()
+      for (let fireball of this.fireballs) {
+        fireball.update()
 
         if (
           Util.checkCollision(
-            fire.getBoundingClientRect(),
+            fireball.getBoundingClientRect(),
             enemy.getBoundingClientRect()
           )
         ) {
-          fire.removeMe()
+          fireball.removeElement()
           this.scorePoint()
           enemy.reset()
 
-          // let hitEnemySound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/hit2.mp3')
+          // let hitEnemySound = new Howl({
+          //   src: ['src/assets/sounds/hit2.mp3'],
+          //   loop: false,
+          // })
+
           // hitEnemySound.play()
 
-          let hitEnemySound = new Howl({
-            src: ['src/assets/sounds/hit2.mp3'],
-            loop: false,
-          })
-
-          hitEnemySound.play()
-
-          let fireballIndex = this.fireballs.indexOf(fire)
+          let fireballIndex = this.fireballs.indexOf(fireball)
           this.fireballs.splice(fireballIndex, 1)
-
-          enemy.posx = window.innerWidth - 65
         }
       }
     }
 
     if (this.life >= 6) {
       this.overworld.pause()
-      let finalscore = document.getElementsByTagName(
-        'finalscore'
-      )[0] as HTMLElement
+      this.finalScore = document.createElement('finalscore')
 
-      finalscore.innerHTML = 'GAME OVER'
-      finalscore.style.display = 'block'
-      // finalscore.style.marginLeft = `${window.innerWidth / 2 - 250}px`
-      // finalscore.style.marginTop = `${window.innerHeight / 2 - 50}px`
+      this.finalScore.innerHTML = 'Game over'
+      this.finalScore.style.display = 'block'
+      this.game.appendChild(this.finalScore)
 
       // let gameover = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/game_over.mp3')
       // gameover.play()
 
-      let gameover = new Howl({
-        src: ['src/assets/sounds/game_over.mp3'],
-        loop: false,
-      })
+      // let gameover = new Howl({
+      //   src: ['src/assets/sounds/game_over.mp3'],
+      //   loop: false,
+      // })
 
-      gameover.play()
+      // gameover.play()
     } else {
       requestAnimationFrame(() => this.gameLoop())
     }
   }
 
   public fire() {
-    if (this.fireballs.length >= 0) {
-      this.fireballs.push(new Fireball(this.player.posy))
-    }
-
+    if (this.fireballs.length) this.fireballs = []
+    this.fireballs.push(new Fireball(this.player.posX, this.player.posY))
+    console.log(this.fireballs)
     // let fireSound = this.audio = new Audio('https://raw.githubusercontent.com/Hsnzync/monster-shooter/master/docs/sounds/laser.mp3')
     // fireSound.play()
 
@@ -222,16 +218,12 @@ export class Game {
       loop: false,
     })
 
-    fireSound.play()
-
-    console.log('fire')
-    console.log(this.player.posy)
+    // fireSound.play()
   }
 
   onKeyDown(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case 82:
-        console.log('Restart game')
         Game.getInstance()
         //this.gameLoop()
         break
@@ -240,34 +232,32 @@ export class Game {
 
   public removeLife() {
     this.life++
-    console.log('hit count: ' + this.life)
 
     switch (this.life) {
       case 1:
-        this.healthbar.style.backgroundPositionY = `-255px`
+        this.healthBar.style.backgroundPositionY = `-255px`
         break
       case 2:
-        this.healthbar.style.backgroundPositionY = `-204px`
+        this.healthBar.style.backgroundPositionY = `-204px`
         break
       case 3:
-        this.healthbar.style.backgroundPositionY = `-153px`
+        this.healthBar.style.backgroundPositionY = `-153px`
         break
       case 4:
-        this.healthbar.style.backgroundPositionY = `-102px`
+        this.healthBar.style.backgroundPositionY = `-102px`
         break
       case 5:
-        this.healthbar.style.backgroundPositionY = `-51px`
+        this.healthBar.style.backgroundPositionY = `-51px`
         break
       case 6:
-        this.healthbar.style.backgroundPositionY = `0px`
+        this.healthBar.style.backgroundPositionY = `0px`
         break
     }
   }
 
   public scorePoint() {
     this.score++
-    console.log(this.score)
-    this.textfield.innerHTML = 'Score: ' + this.score
+    this.scoreBoard.innerHTML = `Your score: ${this.score}`
   }
 }
 
