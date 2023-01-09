@@ -27,8 +27,6 @@ export class Player extends GameObject {
   }
 
   public update(): void {
-    //this.cooldown --
-
     if (this.cooldown > 0) {
       this.cooldown = this.cooldown - 1
     }
@@ -57,14 +55,14 @@ export class Player extends GameObject {
   }
 
   onKeyDown(event: KeyboardEvent): void {
-    switch (event.keyCode) {
-      case 38:
+    switch (event.key) {
+      case 'ArrowUp':
         this.speedY = -3
         break
-      case 40:
+      case 'ArrowDown':
         this.speedY = 3
         break
-      case 32:
+      case ' ':
         if (this.cooldown === 0) {
           this.cooldown = 80
           Game.getInstance().fire()
@@ -75,11 +73,11 @@ export class Player extends GameObject {
   }
 
   onKeyUp(event: KeyboardEvent): void {
-    switch (event.keyCode) {
-      case 38:
+    switch (event.key) {
+      case 'ArrowUp':
         this.speedY = 0
         break
-      case 40:
+      case 'ArrowDown':
         this.speedY = 0
         break
     }

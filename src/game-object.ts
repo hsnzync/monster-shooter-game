@@ -1,12 +1,12 @@
 export abstract class GameObject {
-  public element: HTMLElement
-
   public posY: number
   public posX: number
-  public speedX: number
-  public speedY: number
-  public game: any = document.getElementsByTagName('game')[0]
-  public startPosX: number
+
+  protected element: HTMLElement
+  protected speedX: number
+  protected speedY: number
+  protected game: any = document.getElementsByTagName('game')[0]
+  protected startPosX: number
 
   constructor(element: string) {
     this.element = document.createElement(element)
