@@ -1,15 +1,15 @@
 import { Observer } from '../observer/observer'
-import { Game } from '../index'
+import { Game } from '../game'
 import { GameObject } from '../game-object'
+import { Audio } from '../utils/audio'
+import { Fireball } from './fireball'
 
 export class Player extends GameObject {
-  public posY: number
   public speedX: number
   public speedY: number
-  public x: number
   public cooldown: number
   private observers: Observer[] = []
-  // private spritesY: number
+  private audio: Audio
 
   constructor() {
     super('player')
@@ -21,9 +21,7 @@ export class Player extends GameObject {
     this.posX = 50
     this.speedX = 0
     this.speedY = 0
-    this.x = 0
     this.cooldown = 0
-    // this.spritesY = 0
   }
 
   public update(): void {
@@ -40,8 +38,6 @@ export class Player extends GameObject {
 
     this.playerWindowCol()
     this.element.style.transform = `translate(${this.posX}px, ${this.posY}px)`
-    // this.spritesY = this.spritesY - 112.5;
-    // this.element.style.backgroundPositionY = `${this.spritesY}px`;
   }
 
   public add(o: Observer): void {
@@ -52,6 +48,14 @@ export class Player extends GameObject {
     this.observers.forEach(observer => {
       observer.notify()
     })
+  }
+
+  public shoot() {
+    const fireballs = Game.init().fireballs
+    fireballs.push(new Fireball(this.posX, this.posY))
+
+    // this.audio = new Audio('src/assets/sounds/laser.mp3')
+    // this.audio.play()
   }
 
   onKeyDown(event: KeyboardEvent): void {
@@ -65,8 +69,7 @@ export class Player extends GameObject {
       case ' ':
         if (this.cooldown === 0) {
           this.cooldown = 80
-          Game.getInstance().fire()
-          this.x -= 1
+          this.shoot()
           break
         }
     }

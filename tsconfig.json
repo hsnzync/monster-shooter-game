@@ -7,5 +7,5 @@
     "allowJs": true,
     "moduleResolution": "node"
   },
-  "files": ["src/index.ts"]
+  "files": ["src/game.ts"]
 }

@@ -1,17 +1,16 @@
-import { Game } from '..'
 import { GameObject } from '../game-object'
 
-type Powerups = 'powerup' | 'coin'
+type Powerups = 'firebolt' | 'earthquake' | 'coin'
 export class Powerup extends GameObject {
-  private name: string
+  public name: string
   constructor(name: Powerups) {
     super(name)
     this.name = name
   }
 
   public update(): void {
-    this.posX = this.posX -= 2
-    this.enemyWindowCol()
+    this.posX = this.posX -= 3
+    this.elementWindowCol()
     this.draw()
   }
 }

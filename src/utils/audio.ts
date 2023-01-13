@@ -1,9 +1,9 @@
 import { Howl } from 'howler'
 
-export class Sounds {
+export class Audio {
   private path: string
   private hasLoop: boolean
-  private sounds: any
+  private audio: Howl
 
   constructor(path: string, hasLoop: boolean = false) {
     this.path = path
@@ -11,14 +11,14 @@ export class Sounds {
   }
 
   public play(): void {
-    this.sounds = new Howl({
+    this.audio = new Howl({
       src: [this.path],
       loop: this.hasLoop,
     })
 
-    this.sounds.play()
+    this.audio.play()
   }
   public stop(): void {
-    this.sounds.stop()
+    this.audio.stop()
   }
 }

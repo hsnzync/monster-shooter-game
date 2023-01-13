@@ -25,9 +25,8 @@ body {
     border-radius: 10px;
     border: 15px solid #0000001a;
 
-    background-image: url(../images/background.png);
     image-rendering: pixelated;
-    background-repeat: repeat-x;
+    background-repeat: repeat;
     background-position: bottom;
     background-size: cover;
 
@@ -39,7 +38,7 @@ body {
       position: relative;
 
       healthbar {
-        background-image: url(../images/meter1.png);
+        background-image: url(../img/meter1.png);
         background-repeat: no-repeat;
         position: absolute;
         width: 182px;
@@ -64,6 +63,8 @@ body {
     }
 
     finalscore {
+      text-align: center;
+      text-transform: uppercase;
       background-color: #000000;
       width: 400px;
       height: 200px;
@@ -73,6 +74,8 @@ body {
       transform: translateY(-50%);
       display: none;
       padding: 20px;
+      display: block;
+      transition: 1s;
 
       span {
         text-align: center;
@@ -81,6 +84,52 @@ body {
         padding: 25px;
         margin: auto;
         position: relative;
+      }
+    }
+    home {
+      position: absolute;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+      text-align: center;
+      height: 100%;
+      width: 100%;
+      h1 {
+        font-family: 'Lady Radical';
+        font-size: 100px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 1) 0%,
+          rgba(255, 255, 255, 1) 22%,
+          rgba(55, 94, 115, 1) 100%
+        );
+        opacity: 0;
+        transition: 0.5s;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      span {
+        opacity: 0;
+        transition: 0.5s;
+
+        &:last-child {
+          position: absolute;
+          bottom: 40px;
+          right: 40px;
+        }
+      }
+      story {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: #000;
+        padding: 40px;
+        margin: 0 20px;
+        display: none;
+        p {
+          line-height: 20px;
+        }
       }
     }
   }

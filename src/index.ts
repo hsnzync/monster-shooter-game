@@ -1,226 +1,88 @@
-import { Player } from './objects/player'
-import { Powerup } from './objects/powerup'
-import { Coin } from './objects/coin'
-import { Ghost, Slime, Eye, Skeleton } from './objects/enemies'
-import { GameObject } from './game-object'
-import { Fireball } from './objects/fireball'
-import { Util } from './util'
-import { Sounds } from './utils/sounds'
+import { Game } from './game'
 import './assets/scss/main.scss'
 
-export class Game {
-  private static instance: Game
+export class Start {
+  private static start: Start
+  private container: HTMLElement
+  private home: HTMLElement
+  private title: HTMLElement
+  private description: HTMLElement
+  private footer: HTMLElement
+  private titleCounter: number = 0
 
-  private score: number = 0
-  private life: number = 6
-
-  private scoreBoard: HTMLElement
-  private healthBar: HTMLElement
-  private topbar: HTMLElement
-  private finalScore: HTMLElement
-  private game: HTMLElement
-
-  private player: Player
-  private enemies: GameObject[] = []
-  private fireballs: Fireball[] = []
-
-  private pickup: Powerup
-  private pickups: string[] = []
-
-  private backgroundPosX: number = 0
-  private sounds: Sounds
-  private overworld: any
+  private story: HTMLElement
+  private storyDescription: HTMLElement
+  private isContinue: boolean = false
 
   private constructor() {
-    this.game = document.getElementsByTagName('game')[0] as HTMLElement
-    this.topbar = document.getElementsByTagName('topbar')[0] as HTMLElement
-    this.scoreBoard = document.getElementsByTagName(
-      'scoreboard'
-    )[0] as HTMLElement
-    this.healthBar = document.getElementsByTagName(
-      'healthbar'
-    )[0] as HTMLElement
-    this.scoreBoard.innerHTML = `Your score: ${this.score}`
+    this.setup()
+  }
+
+  public static init() {
+    if (!this.start) {
+      this.start = new Start()
+    }
+    return this.start
+  }
+
+  private setup(): void {
+    this.home = document.createElement('home')
+    this.title = document.createElement('h1')
+    this.title.innerHTML = 'Monster Shooter'
+    this.description = document.createElement('span')
+    this.description.innerHTML = 'Press ENTER to continue'
+    this.footer = document.createElement('span')
+    this.footer.innerHTML = '© hsnzync'
+    this.home.appendChild(this.title)
+    this.home.appendChild(this.description)
+    this.home.appendChild(this.footer)
+
+    this.container = document.getElementsByTagName('game')[0] as HTMLElement
+    this.container.appendChild(this.home)
+
+    this.container.style.backgroundImage =
+      "url('./src/assets/img/start-background.gif')"
+
+    setInterval(() => {
+      if (this.titleCounter < 1) {
+        this.titleCounter = this.titleCounter + 0.2
+      }
+      this.title.style.opacity = `${this.titleCounter}`
+    }, 300)
+
+    setTimeout(() => {
+      this.description.style.opacity = '0.7'
+      this.footer.style.opacity = '0.7'
+      this.isContinue = true
+    }, 2000)
 
     window.addEventListener('keydown', (e: KeyboardEvent) => this.onKeyDown(e))
-
-    this.sounds = new Sounds('src/assets/sounds/overworld.mp3', true)
-    // this.sounds.play()
-
-    this.player = new Player()
-
-    this.enemies.push(
-      new Ghost(this.player),
-      new Slime(this.player),
-      new Eye(this.player),
-      new Skeleton(this.player)
-    )
-
-    this.gameLoop()
   }
 
-  public static getInstance() {
-    if (!Game.instance) {
-      Game.instance = new Game()
-    }
-    return Game.instance
-  }
-
-  public gameLoop(): void {
-    this.backgroundPosX = this.backgroundPosX - 2
-    this.game.style.backgroundPosition = `${this.backgroundPosX}px 0px`
-    this.player.update()
-    this.setPickups()
-    for (let enemy of this.enemies) {
-      enemy.update()
-
-      if (
-        Util.checkCollision(
-          this.player.getBoundingClientRect(),
-          enemy.getBoundingClientRect()
-        )
-      ) {
-        enemy.reset()
-        this.removeLife()
-        // this.score--
-
-        this.sounds = new Sounds('src/assets/sounds/hit.mp3')
-        // this.sounds.play()
-      }
-
-      for (let fireball of this.fireballs) {
-        fireball.update()
-
-        if (
-          Util.checkCollision(
-            fireball.getBoundingClientRect(),
-            enemy.getBoundingClientRect()
-          )
-        ) {
-          fireball.removeElement()
-          this.scorePoint()
-          enemy.reset()
-
-          this.sounds = new Sounds('src/assets/sounds/hit2.mp3')
-          // this.sounds.play()
-
-          let fireballIndex = this.fireballs.indexOf(fireball)
-          this.fireballs.splice(fireballIndex, 1)
-        }
-      }
-    }
-
-    if (this.life === 0) {
-      // this.sounds.stop()
-      this.finalScore = document.createElement('finalscore')
-      this.game.appendChild(this.finalScore)
-
-      this.finalScore.innerHTML = 'Game over'
-      this.finalScore.style.display = 'block'
-
-      this.sounds = new Sounds('src/assets/sounds/game_over.mp3')
-      // this.sounds.play()
-    } else {
-      requestAnimationFrame(() => this.gameLoop())
-    }
-  }
-
-  private setPickups(): void {
-    if (this.pickups.length === 0 || this.pickups.length <= 2) {
-      setInterval(() => {
-        if (!this.pickups.includes('powerup')) {
-          this.pickups.push('powerup')
-          this.pickup = new Powerup('powerup')
-        }
-      }, 8000)
-
-      setInterval(() => {
-        if (!this.pickups.includes('coin')) {
-          this.pickups.push('coin')
-          this.pickup = new Powerup('coin')
-        }
-      }, 4000)
-    }
-
-    if (this.pickups.length) {
-      this.pickup.update()
-      if (
-        Util.checkCollision(
-          this.player.getBoundingClientRect(),
-          this.pickup.getBoundingClientRect()
-        )
-      ) {
-        this.pickup.removeElement()
-
-        if (this.pickups.includes('powerup')) {
-          this.player.notifyAllObservers()
-
-          this.sounds = new Sounds('src/assets/sounds/powerup.mp3')
-          // this.sounds.play()
-
-          if (this.fireballs.length) this.fireballs = []
-          this.fireballs.push(
-            new Fireball(this.player.posX, this.player.posY),
-            new Fireball(this.player.posX, this.player.posY + 20),
-            new Fireball(this.player.posX, this.player.posY + 40)
-          )
-        } else {
-          this.scorePoint()
-          this.sounds = new Sounds('src/assets/sounds/coin.mp3')
-          // this.sounds.play()
-        }
-      }
-    }
-  }
-
-  public fire() {
-    if (this.fireballs.length) this.fireballs = []
-    this.fireballs.push(new Fireball(this.player.posX, this.player.posY))
-
-    this.sounds = new Sounds('src/assets/sounds/laser.mp3')
-    // this.sounds.play()
-  }
-
-  onKeyDown(event: KeyboardEvent): void {
+  private onKeyDown(event: KeyboardEvent): void {
     switch (event.code) {
-      case 'r':
-        Game.getInstance()
-        //this.gameLoop()
+      case 'Enter':
+        if (this.isContinue) {
+          this.story = document.createElement('story')
+          this.storyDescription = document.createElement('p')
+          this.storyDescription.innerHTML = `
+        The year is 2200 and Captain John "Ace" Taylor is on a mission to save planet XZS-53 from an invasion of monsters. 
+        As the best space hero in the galaxy, Ace is chosen to lead the battle on the ground. As he lands on the planet, Ace sees the monsters swarming the surface, destroying everything in their path. 
+
+        Objective:
+        Score as many points as possible in 30 seconds by destroying as many monsters as possible.`
+          this.story.appendChild(this.storyDescription)
+          this.home.appendChild(this.story)
+          this.story.style.display = 'block'
+        }
+
+        // this.home.remove()
+        // Game.init()
         break
     }
-  }
-
-  public removeLife() {
-    this.life--
-
-    switch (this.life) {
-      case 5:
-        this.healthBar.style.backgroundPositionY = `-255px`
-        break
-      case 4:
-        this.healthBar.style.backgroundPositionY = `-204px`
-        break
-      case 3:
-        this.healthBar.style.backgroundPositionY = `-153px`
-        break
-      case 2:
-        this.healthBar.style.backgroundPositionY = `-102px`
-        break
-      case 1:
-        this.healthBar.style.backgroundPositionY = `-51px`
-        break
-      case 0:
-        this.healthBar.style.backgroundPositionY = `0px`
-        break
-    }
-  }
-
-  public scorePoint() {
-    this.score++
-    this.scoreBoard.innerHTML = `Your score: ${this.score}`
   }
 }
 
 window.addEventListener('load', () => {
-  Game.getInstance()
+  Start.init()
 })
