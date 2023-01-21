@@ -36,32 +36,29 @@ export abstract class GameObject {
 
   abstract update(): void
 
-  public playerWindowCol(): void {
-    if (this.posX + this.element.clientWidth > this.game.clientWidth) {
-      this.posX && this.posY == 300
-      this.speedX *= 0
+  public elementWindowCol(): void {
+    if (this.posX <= 0) {
+      this.posX = this.startPosX - this.element.clientWidth
+      this.posY = Math.floor(Math.random() * this.game.clientHeight) + 1
     }
+  }
 
-    const wallOffset: number = this.game.clientHeight / 9
+  public windowYCol(): void {
     const gameTopOffset: number =
       this.game.offsetHeight - this.game.clientHeight
-    const gameWallPosY: number = wallOffset + gameTopOffset
+    const gameWallPosY: number = 180 + gameTopOffset
 
+    // Top wall collision detection
     if (this.posY < gameWallPosY) {
       this.speedY *= 0
       this.posY = gameWallPosY
     }
 
-    if (this.posY >= this.game.offsetTop - 40) {
+    // Bottom wall collision detection
+    // console.log('offsetTop: ', this.game.offsetTop - 20)
+    if (this.posY >= this.game.offsetTop - 20) {
       this.speedY *= 0
-      this.posY = this.game.offsetTop - 40
-    }
-  }
-
-  public elementWindowCol(): void {
-    if (this.posX <= 0) {
-      this.posX = this.startPosX - this.element.clientWidth
-      this.posY = Math.floor(Math.random() * this.game.clientHeight) + 1
+      this.posY = this.game.offsetTop - 20
     }
   }
 
@@ -79,6 +76,6 @@ export abstract class GameObject {
 
   public reset(): void {
     this.posX = this.startPosX - this.element.clientWidth
-    this.posY = Math.floor(Math.random() * this.game.clientHeight) + 1
+    this.posY = Math.floor(Math.random() * this.game.offsetTop - 20) + 1
   }
 }

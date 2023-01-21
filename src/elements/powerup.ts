@@ -11,6 +11,7 @@ export class Powerup extends GameObject {
   public update(): void {
     this.posX = this.posX -= 3
     this.elementWindowCol()
+    this.windowYCol()
     this.draw()
   }
 }
