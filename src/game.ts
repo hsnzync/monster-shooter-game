@@ -5,6 +5,7 @@ import { GameObject } from './game-object'
 import { Fireball } from './elements/fireball'
 import { Util } from './util'
 import { Audio } from './utils/audio'
+import { Overlay } from './utils/overlay'
 import './assets/scss/main.scss'
 
 export class Game {
@@ -12,12 +13,12 @@ export class Game {
   private animationId: any
 
   private score: number = 0
-  private life: number = 6
 
   private container: HTMLElement
   private topbar: HTMLElement
   private scoreBoard: HTMLElement
   private healthBar: HTMLElement
+  private overlay: Overlay
 
   private player: Player
   private monsters: GameObject[] = []
@@ -29,7 +30,15 @@ export class Game {
   private audio: Audio
   private gameAudio: Audio
 
+  private gameStartCounter: HTMLElement
+  private startcounter: number = 3
+  private gameTime: HTMLElement
+  public time: number = 30
+  private highestScore: number | null = 0
+
   public constructor() {
+    // this.gameAudio = new Audio('src/assets/audio/world.mp3', true)
+    // this.gameAudio.play()
     this.setup()
     this.gameLoop()
   }
@@ -42,46 +51,18 @@ export class Game {
   }
 
   private setup(): void {
-    // this.gameAudio = new Audio('src/assets/audio/world.mp3', true)
-    // this.gameAudio.play()
-
     this.container = document.getElementsByTagName('game')[0] as HTMLElement
     this.container.style.backgroundImage =
       "url('./src/assets/img/background.png')"
+
     this.topbar = document.createElement('topbar')
     this.scoreBoard = document.createElement('scoreboard')
-    this.healthBar = document.createElement('healthbar')
+    this.gameTime = document.createElement('time')
 
-    this.container.appendChild(this.topbar)
-    this.topbar.appendChild(this.scoreBoard)
-    this.topbar.appendChild(this.healthBar)
+    this.startCountDown()
 
     // Create player and monsters
     this.player = new Player()
-
-    this.monsters.push(
-      new Ghost(this.player),
-      new Slime(this.player),
-      new Eye(this.player),
-      new Skeleton(this.player)
-    )
-
-    // Create instances of game elements and add them to the game
-    setInterval(() => {
-      if (this.powerups.length < 2 && this.life > 0) {
-        this.powerups.push(new Powerup('firebolt'))
-      } else {
-        this.powerups.pop()
-      }
-    }, 7000)
-
-    setInterval(() => {
-      if (this.powerups.length < 2 && this.life > 0) {
-        this.powerups.push(new Powerup('coin'))
-      } else {
-        this.powerups.pop()
-      }
-    }, 4000)
   }
 
   private gameLoop(): void {
@@ -89,13 +70,12 @@ export class Game {
     this.animationId = requestAnimationFrame(() => this.gameLoop())
 
     this.scoreBoard.innerHTML = `Score: ${this.score}`
+    this.gameTime.innerHTML = `Time: ${this.time}`
     this.backgroundPosX = this.backgroundPosX - 1.5
     this.container.style.backgroundPosition = `${this.backgroundPosX}px 0px`
 
     this.player.update()
     this.handlePickups()
-
-    if (this.life === 0) this.gameOver()
 
     this.monsters.map(monster => {
       monster.update()
@@ -108,7 +88,6 @@ export class Game {
         )
       ) {
         monster.reset()
-        this.removeLife()
         if (this.score > 0) {
           this.score--
         }
@@ -138,6 +117,60 @@ export class Game {
         }
       })
     })
+
+    if (this.time === 0) {
+      this.gameOver()
+    }
+  }
+
+  private startCountDown(): void {
+    this.gameStartCounter = document.createElement('h2')
+    this.container.appendChild(this.gameStartCounter)
+    const interval = setInterval(() => {
+      if (this.startcounter !== 0) {
+        this.gameStartCounter.innerHTML = (this
+          .startcounter as unknown) as string
+        this.startcounter--
+      } else {
+        clearInterval(interval)
+        this.gameStartCounter.remove()
+        this.start()
+      }
+    }, 1500)
+  }
+
+  private start(): void {
+    this.topbar.appendChild(this.scoreBoard)
+    this.topbar.appendChild(this.gameTime)
+    this.container.appendChild(this.topbar)
+
+    this.monsters.push(
+      new Ghost(this.player),
+      new Slime(this.player),
+      new Eye(this.player),
+      new Skeleton(this.player)
+    )
+
+    // Create instances of game elements and add them to the game
+    setInterval(() => {
+      if (this.powerups.length < 2 && this.time > 0) {
+        this.powerups.push(new Powerup('firebolt'))
+      } else {
+        this.powerups.pop()
+        this.powerups.map(item => item.reset())
+      }
+    }, 7000)
+
+    setInterval(() => {
+      if (this.powerups.length < 2 && this.time > 0) {
+        this.powerups.push(new Powerup('coin'))
+      } else {
+        this.powerups.pop()
+        this.powerups.map(item => item.reset())
+      }
+    }, 4000)
+
+    this.countDown()
   }
 
   private handlePickups(): void {
@@ -150,7 +183,6 @@ export class Game {
         )
       ) {
         item.removeElement()
-        console.log(this.powerups)
 
         if (item.name === 'firebolt') {
           this.player.notifyAllObservers()
@@ -173,62 +205,62 @@ export class Game {
     })
   }
 
-  private removeLife(): void {
-    this.life--
-
-    switch (this.life) {
-      case 5:
-        this.healthBar.style.backgroundPositionY = `-255px`
-        break
-      case 4:
-        this.healthBar.style.backgroundPositionY = `-204px`
-        break
-      case 3:
-        this.healthBar.style.backgroundPositionY = `-153px`
-        break
-      case 2:
-        this.healthBar.style.backgroundPositionY = `-102px`
-        break
-      case 1:
-        this.healthBar.style.backgroundPositionY = `-51px`
-        break
-      case 0:
-        this.healthBar.style.backgroundPositionY = `0px`
-        break
-    }
+  private countDown(): void {
+    setInterval(() => {
+      this.time--
+      if (this.time <= 10) {
+        this.gameTime.style.color = '#fff'
+      }
+    }, 1000)
   }
+
   private gameOver(): void {
-    window.addEventListener('keydown', (e: KeyboardEvent) => this.onKeyDown(e))
-    const finalScore: HTMLElement = document.createElement('finalscore')
-    const highScores: HTMLElement = document.createElement('highscores')
-
-    this.container.innerHTML = ''
     cancelAnimationFrame(this.animationId)
+    this.container.innerHTML = ''
 
-    finalScore.innerHTML = `
-    <span>Game over</span>
-    <span>Score: ${this.score}</span>
-    <span>Press "R" to restart</span>
-    `
+    this.overlay = new Overlay()
+    this.overlay.show()
+    this.setScore()
 
-    highScores.innerHTML = `
-      <span>Highscores here</span>
-      <ul>
-        <li>boss ${this.score}</li>
-      </ul>`
+    document.addEventListener('keydown', (e: KeyboardEvent) =>
+      this.onKeyDown(e)
+    )
+    const gameOver: HTMLElement = document.createElement('game-over')
+    const gameOverText: HTMLElement = document.createElement('h3')
+    const restartText: HTMLElement = document.createElement('span')
+    const scoreText: HTMLElement = document.createElement('span')
 
-    this.container.appendChild(finalScore)
-    this.container.appendChild(highScores)
+    gameOverText.innerHTML = 'Game over'
+    restartText.innerHTML = 'Press R to restart'
+    scoreText.innerHTML = `Score: ${this.score}`
+    gameOver.appendChild(gameOverText)
+    gameOver.appendChild(restartText)
+    gameOver.appendChild(scoreText)
+
+    this.container.appendChild(gameOver)
+
     // this.gameAudio.stop()
     // this.audio = new Audio('src/assets/audio/game_over.mp3')
     // this.audio.play()
   }
 
+  private setScore(): void {
+    const localHighScore = localStorage.getItem('score')
+    const score = (this.score as unknown) as string
+
+    if (localHighScore) {
+      this.highestScore = (localHighScore as unknown) as number
+      if (this.score > this.highestScore) {
+        localStorage.setItem('score', score)
+      }
+    } else {
+      localStorage.setItem('score', score)
+    }
+  }
+
   private onKeyDown(event: KeyboardEvent): void {
-    switch (event.code) {
-      case 'KeyR':
-        window.location.reload()
-        break
+    if (event.code === 'KeyR') {
+      window.location.reload()
     }
   }
 }

@@ -1,4 +1,7 @@
+import { Introduction } from './introduction'
+import { Audio } from './utils/audio'
 import { Game } from './game'
+import { Overlay } from './utils/overlay'
 import './assets/scss/main.scss'
 
 export class Start {
@@ -8,14 +11,18 @@ export class Start {
   private title: HTMLElement
   private description: HTMLElement
   private footer: HTMLElement
+  private highScore: HTMLElement
   private titleCounter: number = 0
-
-  private story: HTMLElement
-  private storyDescription: HTMLElement
-  private isContinue: boolean = false
+  private intro: Introduction
+  private audio: Audio
+  private overlay: Overlay
+  private keydownListenerAdded: boolean = false
+  private highestScore: number | null = 0
 
   private constructor() {
     this.setup()
+    // this.audio = new Audio('src/assets/audio/start.mp3', true)
+    // this.audio.play()
   }
 
   public static init() {
@@ -26,18 +33,20 @@ export class Start {
   }
 
   private setup(): void {
+    this.getScore()
     this.home = document.createElement('home')
+    this.container = document.getElementsByTagName('game')[0] as HTMLElement
     this.title = document.createElement('h1')
     this.title.innerHTML = 'Monster Shooter'
-    this.description = document.createElement('span')
-    this.description.innerHTML = 'Press ENTER to continue'
+    this.description = document.createElement('p')
+    this.description.innerHTML = 'Press ENTER to start'
     this.footer = document.createElement('span')
     this.footer.innerHTML = '© hsnzync'
     this.home.appendChild(this.title)
     this.home.appendChild(this.description)
     this.home.appendChild(this.footer)
+    this.home.appendChild(this.highScore)
 
-    this.container = document.getElementsByTagName('game')[0] as HTMLElement
     this.container.appendChild(this.home)
 
     this.container.style.backgroundImage =
@@ -52,33 +61,38 @@ export class Start {
 
     setTimeout(() => {
       this.description.style.opacity = '0.7'
+      this.highScore.style.opacity = '0.7'
       this.footer.style.opacity = '0.7'
-      this.isContinue = true
+      document.addEventListener('keydown', this.handleKeydown)
     }, 2000)
-
-    window.addEventListener('keydown', (e: KeyboardEvent) => this.onKeyDown(e))
   }
 
-  private onKeyDown(event: KeyboardEvent): void {
-    switch (event.code) {
-      case 'Enter':
-        if (this.isContinue) {
-          this.story = document.createElement('story')
-          this.storyDescription = document.createElement('p')
-          this.storyDescription.innerHTML = `
-        The year is 2200 and Captain John "Ace" Taylor is on a mission to save planet XZS-53 from an invasion of monsters. 
-        As the best space hero in the galaxy, Ace is chosen to lead the battle on the ground. As he lands on the planet, Ace sees the monsters swarming the surface, destroying everything in their path. 
+  private getScore(): void {
+    const localHighScore = localStorage.getItem('score')
+    if (localHighScore) {
+      this.highestScore = (localHighScore as unknown) as number
+    }
 
-        Objective:
-        Score as many points as possible in 30 seconds by destroying as many monsters as possible.`
-          this.story.appendChild(this.storyDescription)
-          this.home.appendChild(this.story)
-          this.story.style.display = 'block'
+    this.highScore = document.createElement('span')
+    this.highScore.innerHTML = `Highscore: ${this.highestScore}`
+  }
+
+  // Handle the keydown event
+  private handleKeydown(event: KeyboardEvent): void {
+    if (event.code === 'Enter' && !this.keydownListenerAdded) {
+      this.container = document.getElementsByTagName('game')[0] as HTMLElement
+      this.keydownListenerAdded = true
+
+      this.overlay = new Overlay()
+      this.overlay.show()
+
+      setTimeout(() => {
+        if (this.overlay.counter === 1) {
+          this.container.innerHTML = ''
+          this.intro = new Introduction(this.audio)
+          // Game.init()
         }
-
-        // this.home.remove()
-        // Game.init()
-        break
+      }, 2000)
     }
   }
 }
