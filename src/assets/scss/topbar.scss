@@ -1,0 +1,23 @@
+topbar {
+  background: #248c76;
+  height: 65px;
+  width: 100%;
+  display: inline-flex;
+  position: relative;
+  font-size: 25px;
+  text-shadow: 0px 3px 0px rgba(25, 51, 37, 1);
+  color: rgb(30, 222, 126);
+  font-weight: 800;
+
+  time {
+    padding: 20px;
+    border-radius: 10px;
+    transition: 0.5s;
+  }
+
+  scoreboard {
+    position: absolute;
+    right: 20px;
+    margin: 20px;
+  }
+}

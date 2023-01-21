@@ -1,0 +1,42 @@
+home {
+  position: absolute;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  h1 {
+    font-family: 'Lady Radical';
+    font-size: 100px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 1) 22%,
+      rgba(55, 94, 115, 1) 100%
+    );
+    opacity: 0;
+    transition: 0.5s;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p {
+    opacity: 0;
+    transition: 0.5s;
+  }
+  span {
+    opacity: 0;
+    transition: 0.5s;
+    &:nth-of-type(1) {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+    }
+
+    &:nth-of-type(2) {
+      position: absolute;
+      left: 40px;
+      bottom: 40px;
+    }
+  }
+}

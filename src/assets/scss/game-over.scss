@@ -1,0 +1,18 @@
+game-over {
+  text-align: center;
+  text-transform: uppercase;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 20px;
+  display: block;
+  transition: 1s;
+
+  h3 {
+    font-size: 60px;
+  }
+  span {
+    display: block;
+    margin: 20px 0;
+  }
+}
