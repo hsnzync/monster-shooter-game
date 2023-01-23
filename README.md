@@ -1,14 +1,16 @@
-# 👾 Monster shooter game
+# 👾 Monster Shooter game
 
 ![Current Version](https://img.shields.io/badge/version-v1.0-blue)
-![GitHub contributors](https://img.shields.io/github/contributors/hsnzync/monster-shooter-game)
-![GitHub stars](https://img.shields.io/github/stars/hsnzync/monster-shooter-game?style=social)
-![GitHub forks](https://img.shields.io/github/forks/hsnzync/monster-shooter-game?style=social)
-![Twitter Follow](https://img.shields.io/twitter/follow/hsnzync?style=social)
 
-A web browser game built with Typescript using the Object Oriented Programming principles. This game has been developed using the possibilities that Javascript offers, using only [HowlerJS](https://github.com/goldfire/howler.js#documentation) for game sounds.
+<img width="400" alt="start-screen" src="https://user-images.githubusercontent.com/12610474/214084008-28ad144d-266e-40f3-8155-f2cea1814ffa.png">&nbsp;&nbsp;&nbsp;&nbsp;<img width="400" alt="game-screen" src="https://user-images.githubusercontent.com/12610474/214084210-e4710183-ee17-4236-b0f2-a065fb43ab22.png">
 
-The project is also hosted on [GitHub Pages]
+A web browser game built with Typescript using the Object Oriented Programming principles. This game has been developed using the possibilities that Javascript offers, such as DOM manipulation and using only [HowlerJS](https://github.com/goldfire/howler.js#documentation) for game sounds. All graphics are from [Itch.io](https://itch.io).
+
+The following patterns/techniques are included in the game:
+* Observer pattern
+* Strategy pattern
+* Inheritance
+* Polymorphism
 
 ## Table of Contents
 - [Getting Started](#getting-started)
@@ -19,7 +21,7 @@ The project is also hosted on [GitHub Pages]
 ## Getting Started
 
 ### Motivation
-This project started as a school project that didn't feel "finished". For that reason, the game was further developed so that it was playable and challenging for the player.
+This project started as a school project that didn't felt "finished". For that reason, the game was further developed so that it was playable and challenging for the player.
 
 The game has been expanded with a start screen, introduction screen and the main game. This makes it feel like a full-fledged game.
 
