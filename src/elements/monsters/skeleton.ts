@@ -11,7 +11,7 @@ export class Skeleton extends GameObject implements Observer {
   constructor(p: Player) {
     super('skeleton')
     this.player = p
-    this.behavior = new slowBehavior(this)
+    this.behavior = new fastBehavior(this)
   }
 
   public update(): void {
@@ -22,8 +22,6 @@ export class Skeleton extends GameObject implements Observer {
   }
 
   public notify(): void {
-    if (this.game.time <= 10) {
-      this.behavior = new fastBehavior(this)
-    }
+    this.behavior = new slowBehavior(this)
   }
 }

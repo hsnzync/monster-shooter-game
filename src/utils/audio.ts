@@ -24,4 +24,11 @@ export class Audio {
   public stop(): void {
     this.audio.stop()
   }
+
+  public fadeOut(): void {
+    this.audio.fade(0.5, 0, 2000)
+  }
+  public fadeIn(): void {
+    this.audio.fade(0, 0.5, 1000)
+  }
 }

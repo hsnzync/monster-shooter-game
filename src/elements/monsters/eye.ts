@@ -13,7 +13,7 @@ export class Eye extends GameObject implements Observer {
     super('eye')
 
     this.player = p
-    this.behavior = new slowBehavior(this)
+    this.behavior = new fastBehavior(this)
   }
 
   public update(): void {
@@ -24,9 +24,6 @@ export class Eye extends GameObject implements Observer {
   }
 
   public notify(): void {
-    if (this.game.time <= 10) {
-      console.log('eye is faster')
-      this.behavior = new fastBehavior(this)
-    }
+    this.behavior = new slowBehavior(this)
   }
 }

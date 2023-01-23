@@ -1,7 +1,8 @@
 import { Game } from './game'
 import { Audio } from './utils/audio'
-import './assets/scss/main.scss'
 import { Overlay } from './utils/overlay'
+import { texts } from './assets/texts'
+import './assets/scss/main.scss'
 
 export class Introduction {
   private intro: HTMLElement
@@ -28,22 +29,19 @@ export class Introduction {
     this.description = document.createElement('p')
     this.mission = document.createElement('p')
     this.footer = document.createElement('span')
-    this.footer.innerHTML = 'Press ENTER to continue'
+    this.footer.innerHTML = texts.introduction.footer
 
     this.intro = document.createElement('intro')
     this.intro.style.opacity = '1'
     this.container.appendChild(this.intro)
 
-    var txt =
-      'The year is 2200 and Captain John "Ace" Taylor is on a mission to save planet XZS-53 from an invasion of monsters. As the best space hero in the galaxy, Ace is chosen to lead the battle on the ground. As he lands on the planet, Ace sees the monsters swarming the surface, destroying everything in their path.'
-    this.description.innerHTML = txt
-    this.mission.innerHTML =
-      'Mission: Score points in 30 seconds by destroying as many monsters as possible.'
+    this.description.innerHTML = texts.introduction.description
+    this.mission.innerHTML = texts.introduction.mission
 
     this.tutorialArrowKeys = document.createElement('p')
-    this.tutorialArrowKeys.innerHTML = 'Arrow keys: Move'
+    this.tutorialArrowKeys.innerHTML = texts.introduction.tutorial.arrow_keys
     this.tutorialSpaceKeys = document.createElement('p')
-    this.tutorialSpaceKeys.innerHTML = 'Spacebar: Shoot'
+    this.tutorialSpaceKeys.innerHTML = texts.introduction.tutorial.space_keys
 
     this.intro.appendChild(this.description)
     this.intro.appendChild(this.mission)
@@ -72,14 +70,13 @@ export class Introduction {
   // Handle the keydown event
   private onKeyDown(event: KeyboardEvent): void {
     if (event.code === 'Enter' && !this.keydownListenerAdded) {
+      this.homeAudio.fadeOut()
       this.keydownListenerAdded = true
-
       this.overlay = new Overlay()
       this.overlay.show()
 
       setTimeout(() => {
         if (this.overlay.counter === 1) {
-          // this.homeAudio.stop()
           this.container.innerHTML = ''
           Game.init()
         }

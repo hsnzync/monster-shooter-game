@@ -9,10 +9,18 @@ topbar {
   color: rgb(30, 222, 126);
   font-weight: 800;
 
-  time {
-    padding: 20px;
-    border-radius: 10px;
-    transition: 0.5s;
+  healthbar {
+    background-image: url(../img/meter.png);
+    background-repeat: no-repeat;
+    position: absolute;
+    width: 182px;
+    height: 36px;
+    overflow: hidden;
+    background-position-y: -306px;
+    background-size: 182px;
+    margin: 16px;
+    left: 20px;
+    image-rendering: pixelated;
   }
 
   scoreboard {

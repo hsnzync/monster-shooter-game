@@ -2,6 +2,7 @@ import { Introduction } from './introduction'
 import { Audio } from './utils/audio'
 import { Game } from './game'
 import { Overlay } from './utils/overlay'
+import { texts } from './assets/texts'
 import './assets/scss/main.scss'
 
 export class Start {
@@ -10,7 +11,7 @@ export class Start {
   private home: HTMLElement
   private title: HTMLElement
   private description: HTMLElement
-  private footer: HTMLElement
+  private creator: HTMLElement
   private highScore: HTMLElement
   private titleCounter: number = 0
   private intro: Introduction
@@ -21,8 +22,6 @@ export class Start {
 
   private constructor() {
     this.setup()
-    // this.audio = new Audio('src/assets/audio/start.mp3', true)
-    // this.audio.play()
   }
 
   public static init() {
@@ -33,18 +32,21 @@ export class Start {
   }
 
   private setup(): void {
+    this.audio = new Audio('src/assets/audio/start.mp3', true)
+    this.audio.play()
+
     this.getScore()
     this.home = document.createElement('home')
     this.container = document.getElementsByTagName('game')[0] as HTMLElement
     this.title = document.createElement('h1')
-    this.title.innerHTML = 'Monster Shooter'
+    this.title.innerHTML = texts.title_screen.title
     this.description = document.createElement('p')
-    this.description.innerHTML = 'Press ENTER to start'
-    this.footer = document.createElement('span')
-    this.footer.innerHTML = '© hsnzync'
+    this.description.innerHTML = texts.title_screen.description
+    this.creator = document.createElement('span')
+    this.creator.innerHTML = texts.title_screen.creator
     this.home.appendChild(this.title)
     this.home.appendChild(this.description)
-    this.home.appendChild(this.footer)
+    this.home.appendChild(this.creator)
     this.home.appendChild(this.highScore)
 
     this.container.appendChild(this.home)
@@ -62,8 +64,10 @@ export class Start {
     setTimeout(() => {
       this.description.style.opacity = '0.7'
       this.highScore.style.opacity = '0.7'
-      this.footer.style.opacity = '0.7'
-      document.addEventListener('keydown', this.handleKeydown)
+      this.creator.style.opacity = '0.7'
+      document.addEventListener('keydown', (e: KeyboardEvent) =>
+        this.handleKeydown(e, this.audio)
+      )
     }, 2000)
   }
 
@@ -74,11 +78,11 @@ export class Start {
     }
 
     this.highScore = document.createElement('span')
-    this.highScore.innerHTML = `Highscore: ${this.highestScore}`
+    this.highScore.innerHTML = texts.title_screen.highscore + this.highestScore
   }
 
   // Handle the keydown event
-  private handleKeydown(event: KeyboardEvent): void {
+  private handleKeydown(event: KeyboardEvent, audio: Audio): void {
     if (event.code === 'Enter' && !this.keydownListenerAdded) {
       this.container = document.getElementsByTagName('game')[0] as HTMLElement
       this.keydownListenerAdded = true
@@ -89,8 +93,7 @@ export class Start {
       setTimeout(() => {
         if (this.overlay.counter === 1) {
           this.container.innerHTML = ''
-          this.intro = new Introduction(this.audio)
-          // Game.init()
+          this.intro = new Introduction(audio)
         }
       }, 2000)
     }

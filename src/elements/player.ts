@@ -38,7 +38,6 @@ export class Player extends GameObject {
 
     this.windowCol()
     this.element.style.transform = `translate(${this.posX}px, ${this.posY}px)`
-    console.log(this.posY)
   }
 
   private windowCol(): void {
@@ -76,8 +75,8 @@ export class Player extends GameObject {
     const fireballs = Game.init().fireballs
     fireballs.push(new Fireball(this.posX - 20, this.posY - 30))
 
-    // this.audio = new Audio('src/assets/sounds/laser.mp3')
-    // this.audio.play()
+    this.audio = new Audio('src/assets/audio/fire.mp3')
+    this.audio.play()
   }
 
   onKeyDown(event: KeyboardEvent): void {

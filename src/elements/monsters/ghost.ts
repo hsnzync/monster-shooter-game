@@ -13,7 +13,7 @@ export class Ghost extends GameObject implements Observer {
     super('ghost')
     this.player = p
     p.add(this)
-    this.behavior = new slowBehavior(this)
+    this.behavior = new fastBehavior(this)
   }
 
   public update(): void {
@@ -24,8 +24,6 @@ export class Ghost extends GameObject implements Observer {
   }
 
   public notify(): void {
-    if (this.game.time <= 10) {
-      this.behavior = new slowBehavior(this)
-    }
+    this.behavior = new slowBehavior(this)
   }
 }

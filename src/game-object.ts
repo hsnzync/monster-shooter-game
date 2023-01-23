@@ -55,7 +55,6 @@ export abstract class GameObject {
     }
 
     // Bottom wall collision detection
-    // console.log('offsetTop: ', this.game.offsetTop - 20)
     if (this.posY >= this.game.offsetTop - 20) {
       this.speedY *= 0
       this.posY = this.game.offsetTop - 20

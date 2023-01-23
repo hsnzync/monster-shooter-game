@@ -11,7 +11,7 @@ export class Slime extends GameObject implements Observer {
   constructor(p: Player) {
     super('slime')
     p.add(this)
-    this.behavior = new slowBehavior(this)
+    this.behavior = new fastBehavior(this)
     this.player = p
   }
 
@@ -23,8 +23,6 @@ export class Slime extends GameObject implements Observer {
   }
 
   public notify(): void {
-    if (this.game.time <= 10) {
-      this.behavior = new fastBehavior(this)
-    }
+    this.behavior = new slowBehavior(this)
   }
 }
