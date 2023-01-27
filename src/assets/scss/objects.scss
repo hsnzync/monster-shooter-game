@@ -1,85 +1,59 @@
+$object-width: 6%;
+$object-height: 15%;
+
+player,
+ghost,
+slime,
+skeleton,
+eye,
+special,
+coin,
+fireball,
+heart {
+  min-width: 75px;
+  width: $object-width;
+  height: $object-height;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position-y: center;
+  position: absolute;
+  display: block;
+}
+
 player {
   background-image: url(../img/player.gif);
-  background-repeat: repeat-y !important;
-  width: 60px;
-  height: 75px;
-  background-size: 75px;
-  background-position-x: -5px;
-  display: block;
-  position: absolute;
 }
 
 ghost {
-  width: 65px;
-  height: 65px;
-  background-size: 65px;
   background-image: url(../img/ghost.gif);
-  background-repeat: no-repeat;
-  display: block;
-  position: absolute;
 }
 
 slime {
-  width: 65px;
-  height: 55px;
-  background-size: 65px;
-  background-position-y: -10px;
+  height: 10%;
   background-image: url(../img/slime.gif);
-  background-repeat: no-repeat;
-  display: block;
-  position: absolute;
 }
 
 skeleton {
-  width: 65px;
-  height: 65px;
-  background-size: 65px;
   background-image: url(../img/skeleton.gif);
-  background-repeat: no-repeat;
-  display: block;
-  position: absolute;
 }
 
 eye {
-  width: 65px;
-  height: 50px;
-  background-position-y: -10px;
-  background-size: 65px;
+  height: 10%;
   background-image: url(../img/eye.gif);
-  background-repeat: no-repeat;
-  display: block;
-  position: absolute;
 }
 
-firebolt {
-  width: 65px;
-  height: 65px;
-  background-position-y: -10px;
-  background-size: 65px;
+special {
   background-image: url(../img/powerup.gif);
-  background-repeat: no-repeat;
-  display: block;
-  position: absolute;
 }
 
 coin {
-  width: 65px;
-  height: 65px;
-  background-position-y: -10px;
-  background-size: 65px;
   background-image: url(../img/coin.gif);
-  background-repeat: no-repeat;
-  display: block;
-  position: absolute;
 }
 
 fireball {
-  width: 60px;
-  height: 20px;
-  background-position-y: -25px;
-  background-size: 65px;
   background-image: url(../img/fireball.gif);
-  background-repeat: no-repeat;
-  display: block;
-  position: absolute;
+}
+
+heart {
+  background-image: url(../img/heart.gif);
 }
