@@ -1,11 +1,9 @@
-import { Player } from './elements/player'
-import { Powerup } from './elements/powerup'
+import { Observer } from './observer/observer'
+import { Player, Powerup } from './elements'
 import { Ghost, Slime, Eye, Skeleton } from './elements/monsters'
 import { GameObject } from './game-object'
-import { Fireball } from './elements/fireball'
-import { Audio } from './utils/audio'
-import { Overlay } from './utils/overlay'
-import { Collision } from './utils/collision'
+import { Fireball, Doom } from './elements/projectiles'
+import { Audio, Overlay, Collision } from './utils'
 import { texts } from './assets/texts'
 import './assets/scss/main.scss'
 
@@ -13,10 +11,11 @@ export class Game {
   private static game: Game
   private animationId: any
 
-  private score: number = 0
+  public score: number = 0
   private life: number = 6
 
   private container: HTMLElement
+  private wall: HTMLElement
   private topbar: HTMLElement
   private scoreBoard: HTMLElement
   private healthBar: HTMLElement
@@ -31,9 +30,10 @@ export class Game {
   private backgroundPosX: number = 0
   private audio: Audio
   private gameAudio: Audio
+  private observers: Observer[] = []
 
   private gameStartCounter: HTMLElement
-  private startcounter: number = 3
+  public startcounter: number = 3
   private highestScore: number | null = 0
 
   public constructor() {
@@ -53,12 +53,17 @@ export class Game {
     this.container.style.backgroundImage =
       "url('./src/assets/img/background.png')"
 
+    this.wall = document.createElement('wall')
     this.topbar = document.createElement('topbar')
     this.scoreBoard = document.createElement('scoreboard')
     this.healthBar = document.createElement('healthbar')
+    this.container.appendChild(this.wall)
 
     this.startCountDown()
     this.player = new Player()
+    this.topbar.appendChild(this.scoreBoard)
+    this.topbar.appendChild(this.healthBar)
+    this.container.appendChild(this.topbar)
   }
 
   private gameLoop(): void {
@@ -66,13 +71,13 @@ export class Game {
     this.animationId = requestAnimationFrame(() => this.gameLoop())
 
     this.scoreBoard.innerHTML = `Score: ${this.score}`
-    this.backgroundPosX = this.backgroundPosX - 1.5
+    this.backgroundPosX = this.backgroundPosX - 1
     this.container.style.backgroundPosition = `${this.backgroundPosX}px 0px`
 
     this.player.update()
-    this.handlePickups()
 
-    this.monsters.map(monster => {
+    this.handlePickups()
+    this.monsters.map((monster) => {
       monster.update()
 
       // Player hits a monster
@@ -83,7 +88,8 @@ export class Game {
         )
       ) {
         monster.reset()
-        this.removeLife()
+        this.life--
+        this.handleHearts()
         if (this.score > 0) {
           this.score--
         }
@@ -92,7 +98,7 @@ export class Game {
         this.audio.play()
       }
 
-      this.fireballs.map(fireball => {
+      this.fireballs.map((fireball) => {
         fireball.update()
 
         if (
@@ -117,6 +123,10 @@ export class Game {
     if (this.life === 0) {
       this.gameOver()
     }
+
+    if (this.score === 15) {
+      this.notifyAllObservers()
+    }
   }
 
   private startCountDown(): void {
@@ -126,8 +136,7 @@ export class Game {
 
     const interval = setInterval(() => {
       if (this.startcounter !== 0) {
-        this.gameStartCounter.innerHTML = (this
-          .startcounter as unknown) as string
+        this.gameStartCounter.innerHTML = this.startcounter as unknown as string
         this.startcounter--
         this.audio.play()
       } else {
@@ -146,40 +155,44 @@ export class Game {
     this.gameAudio = new Audio('src/assets/audio/world.mp3', true)
     this.gameAudio.play()
 
-    this.monsters.push(
-      new Ghost(this.player),
-      new Slime(this.player),
-      new Eye(this.player),
-      new Skeleton(this.player)
-    )
+    this.monsters.push(new Ghost(), new Slime(), new Eye(), new Skeleton())
 
     this.setPowerups()
   }
 
   // Create instances of game elements and add them to the game
   private setPowerups(): void {
-    const firebolt = (this.powerups.filter(
-      p => p.name === 'firebolt'
-    ) as unknown) as Powerup
-    const coin = (this.powerups.filter(
-      p => p.name === 'coin'
-    ) as unknown) as Powerup
+    const special = this.powerups.filter(
+      (p) => p.name === 'special'
+    ) as unknown as Powerup
+    const coin = this.powerups.filter(
+      (p) => p.name === 'coin'
+    ) as unknown as Powerup
+    const heart = this.powerups.filter(
+      (p) => p.name === 'heart'
+    ) as unknown as Powerup
 
-    if (!this.powerups.includes(firebolt)) {
+    if (!this.powerups.includes(special)) {
       setTimeout(() => {
-        this.powerups.push(new Powerup('firebolt'))
-      }, 16000)
+        this.powerups.push(new Powerup('special'))
+      }, 20000)
+    }
+
+    if (!this.powerups.includes(heart)) {
+      setTimeout(() => {
+        this.powerups.push(new Powerup('heart'))
+      }, 35000)
     }
 
     if (!this.powerups.includes(coin)) {
       setTimeout(() => {
         this.powerups.push(new Powerup('coin'))
-      }, 8000)
+      }, 10000)
     }
   }
 
   private handlePickups(): void {
-    this.powerups.map(item => {
+    this.powerups.map((item) => {
       item.update()
       if (
         Collision.checkCollision(
@@ -191,45 +204,61 @@ export class Game {
         this.powerups.pop()
         this.setPowerups()
 
-        if (item.name === 'firebolt') {
-          this.player.notifyAllObservers()
+        switch (item.name) {
+          case 'special':
+            this.audio = new Audio('src/assets/audio/special.mp3')
+            this.audio.play()
 
-          this.audio = new Audio('src/assets/audio/firestorm.mp3')
-          this.audio.play()
+            if (this.fireballs.length) this.fireballs = []
+            this.fireballs.push(
+              new Fireball(this.player.posX, this.player.posY - 50),
+              new Fireball(this.player.posX, this.player.posY - 30),
+              new Fireball(this.player.posX, this.player.posY - 10)
+            )
+            break
+          case 'heart':
+            if (this.life < 6) {
+              this.life++
+              this.handleHearts()
+              this.audio = new Audio('src/assets/audio/heart.mp3')
+              this.audio.play()
+            }
+            break
 
-          if (this.fireballs.length) this.fireballs = []
-          this.fireballs.push(
-            new Fireball(this.player.posX, this.player.posY - 50),
-            new Fireball(this.player.posX, this.player.posY - 30),
-            new Fireball(this.player.posX, this.player.posY - 10)
-          )
-        } else {
-          this.score++
-          this.audio = new Audio('src/assets/audio/coin.mp3')
-          this.audio.play()
+          default:
+            this.score++
+            this.audio = new Audio('src/assets/audio/coin.mp3')
+            this.audio.play()
+            break
         }
       }
     })
   }
 
-  private removeLife(): void {
-    this.life--
+  private notifyAllObservers(): void {
+    this.observers = this.monsters as unknown as Observer[]
+    this.observers.map((observer) => observer.notify())
+  }
 
+  private handleHearts(): void {
     switch (this.life) {
+      case 6:
+        this.healthBar.style.backgroundPositionY = `-336px;`
+        break
       case 5:
-        this.healthBar.style.backgroundPositionY = `-255px`
+        this.healthBar.style.backgroundPositionY = `-280px`
         break
       case 4:
-        this.healthBar.style.backgroundPositionY = `-204px`
+        this.healthBar.style.backgroundPositionY = `-224px`
         break
       case 3:
-        this.healthBar.style.backgroundPositionY = `-153px`
+        this.healthBar.style.backgroundPositionY = `-168px`
         break
       case 2:
-        this.healthBar.style.backgroundPositionY = `-102px`
+        this.healthBar.style.backgroundPositionY = `-112px`
         break
       case 1:
-        this.healthBar.style.backgroundPositionY = `-51px`
+        this.healthBar.style.backgroundPositionY = `-56px`
         break
       case 0:
         this.healthBar.style.backgroundPositionY = `0px`
@@ -272,10 +301,10 @@ export class Game {
 
   private setScore(): void {
     const localHighScore = localStorage.getItem('score')
-    const score = (this.score as unknown) as string
+    const score = this.score as unknown as string
 
     if (localHighScore) {
-      this.highestScore = (localHighScore as unknown) as number
+      this.highestScore = localHighScore as unknown as number
       if (this.score > this.highestScore) {
         localStorage.setItem('score', score)
       }

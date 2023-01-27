@@ -1,8 +1,8 @@
-import { GameObject } from '../game-object'
+import { GameObject } from '../../game-object'
 
-export class Fireball extends GameObject {
+export class Doom extends GameObject {
   constructor(x: number, y: number) {
-    super('fireball')
+    super('doom')
 
     this.posX = x
     this.posY = y
@@ -10,6 +10,7 @@ export class Fireball extends GameObject {
 
   public update(): void {
     this.posX = this.posX += 2
+    console.log('posX: ' + this.posX)
 
     this.draw()
     this.element.style.transform = `translate(${this.posX}px, ${this.posY}px)`
