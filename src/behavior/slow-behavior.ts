@@ -7,11 +7,10 @@ export class slowBehavior implements MoveBehavior {
 
   constructor(enemy: GameObject) {
     this.enemy = enemy
-    let r = Math.floor(Math.random() * 3) + 1
-    this.speedX = r
+    this.speedX = 3
   }
 
   public performUpdate() {
-    this.enemy.posX = this.enemy.posX -= this.speedX
+    this.enemy.posX -= this.speedX
   }
 }

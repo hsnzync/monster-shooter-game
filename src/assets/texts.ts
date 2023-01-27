@@ -12,7 +12,7 @@ export const texts = {
       'Objective: Score points by destroying as many monsters as possible.',
     footer: 'Press ENTER to continue',
     tutorial: {
-      arrow_keys: 'Arrow keys: Move',
+      arrow_keys: 'Up & Down keys: Move',
       space_keys: 'Spacebar: Shoot',
     },
   },

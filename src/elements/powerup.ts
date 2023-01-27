@@ -1,6 +1,6 @@
 import { GameObject } from '../game-object'
 
-type Powerups = 'firebolt' | 'time' | 'coin'
+type Powerups = 'special' | 'coin' | 'heart'
 export class Powerup extends GameObject {
   public name: string
   constructor(name: Powerups) {

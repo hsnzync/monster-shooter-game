@@ -1,7 +1,6 @@
-import { Introduction } from './introduction'
-import { Audio } from './utils/audio'
 import { Game } from './game'
-import { Overlay } from './utils/overlay'
+import { Introduction } from './introduction'
+import { Audio, Overlay } from './utils'
 import { texts } from './assets/texts'
 import './assets/scss/main.scss'
 
@@ -74,7 +73,7 @@ export class Start {
   private getScore(): void {
     const localHighScore = localStorage.getItem('score')
     if (localHighScore) {
-      this.highestScore = (localHighScore as unknown) as number
+      this.highestScore = localHighScore as unknown as number
     }
 
     this.highScore = document.createElement('span')

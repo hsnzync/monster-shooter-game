@@ -9,11 +9,9 @@ export class Eye extends GameObject implements Observer {
   public player: Player
   public game: Game
 
-  constructor(p: Player) {
+  constructor() {
     super('eye')
-
-    this.player = p
-    this.behavior = new fastBehavior(this)
+    this.behavior = new slowBehavior(this)
   }
 
   public update(): void {
@@ -24,6 +22,6 @@ export class Eye extends GameObject implements Observer {
   }
 
   public notify(): void {
-    this.behavior = new slowBehavior(this)
+    this.behavior = new fastBehavior(this)
   }
 }

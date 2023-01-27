@@ -1,6 +1,5 @@
 import { Game } from './game'
-import { Audio } from './utils/audio'
-import { Overlay } from './utils/overlay'
+import { Audio, Overlay } from './utils'
 import { texts } from './assets/texts'
 import './assets/scss/main.scss'
 
