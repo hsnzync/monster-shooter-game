@@ -1,7 +1,8 @@
-import { Game } from './game'
 import { Introduction } from './introduction'
 import { Audio, Overlay } from './utils'
 import { texts } from './assets/texts'
+import Background from './assets/img/start-background.gif'
+import StartAudio from './assets/audio/start.mp3'
 import './assets/scss/main.scss'
 
 export class Start {
@@ -31,7 +32,7 @@ export class Start {
   }
 
   private setup(): void {
-    this.audio = new Audio('src/assets/audio/start.mp3', true)
+    this.audio = new Audio(StartAudio, true)
     this.audio.play()
 
     this.getScore()
@@ -50,8 +51,7 @@ export class Start {
 
     this.container.appendChild(this.home)
 
-    this.container.style.backgroundImage =
-      "url('./src/assets/img/start-background.gif')"
+    this.container.style.backgroundImage = `url(${Background})`
 
     setInterval(() => {
       if (this.titleCounter < 1) {

@@ -5,6 +5,15 @@ import { GameObject } from './game-object'
 import { Fireball, Doom } from './elements/projectiles'
 import { Audio, Overlay, Collision } from './utils'
 import { texts } from './assets/texts'
+import Background from './assets/img/background.png'
+import HitSound from './assets/audio/player_hit.mp3'
+import MonsterHitSound from './assets/audio/monster_hit.mp3'
+import CountDownAudio from './assets/audio/countdown.mp3'
+import WorldAudio from './assets/audio/world.mp3'
+import PowerupAudio from './assets/audio/special.mp3'
+import HeartAudio from './assets/audio/heart.mp3'
+import CoinAudio from './assets/audio/coin.mp3'
+import GameOverAudio from './assets/audio/game_over.mp3'
 import './assets/scss/main.scss'
 
 export class Game {
@@ -50,8 +59,7 @@ export class Game {
 
   private setup(): void {
     this.container = document.getElementsByTagName('game')[0] as HTMLElement
-    this.container.style.backgroundImage =
-      "url('./src/assets/img/background.png')"
+    this.container.style.backgroundImage = `url(${Background})`
 
     this.wall = document.createElement('wall')
     this.topbar = document.createElement('topbar')
@@ -90,11 +98,7 @@ export class Game {
         monster.reset()
         this.life--
         this.handleHearts()
-        if (this.score > 0) {
-          this.score--
-        }
-
-        this.audio = new Audio('src/assets/audio/player_hit.mp3')
+        this.audio = new Audio(HitSound)
         this.audio.play()
       }
 
@@ -111,7 +115,7 @@ export class Game {
           this.score++
           monster.reset()
 
-          this.audio = new Audio('src/assets/audio/monster_hit.mp3')
+          this.audio = new Audio(MonsterHitSound)
           this.audio.play()
 
           let fireballIndex = this.fireballs.indexOf(fireball)
@@ -124,7 +128,7 @@ export class Game {
       this.gameOver()
     }
 
-    if (this.score === 15) {
+    if (this.score === 20) {
       this.notifyAllObservers()
     }
   }
@@ -132,7 +136,7 @@ export class Game {
   private startCountDown(): void {
     this.gameStartCounter = document.createElement('h2')
     this.container.appendChild(this.gameStartCounter)
-    this.audio = new Audio('src/assets/audio/countdown.mp3')
+    this.audio = new Audio(CountDownAudio)
 
     const interval = setInterval(() => {
       if (this.startcounter !== 0) {
@@ -152,7 +156,7 @@ export class Game {
     this.topbar.appendChild(this.healthBar)
     this.container.appendChild(this.topbar)
 
-    this.gameAudio = new Audio('src/assets/audio/world.mp3', true)
+    this.gameAudio = new Audio(WorldAudio, true)
     this.gameAudio.play()
 
     this.monsters.push(new Ghost(), new Slime(), new Eye(), new Skeleton())
@@ -206,7 +210,7 @@ export class Game {
 
         switch (item.name) {
           case 'special':
-            this.audio = new Audio('src/assets/audio/special.mp3')
+            this.audio = new Audio(PowerupAudio)
             this.audio.play()
 
             if (this.fireballs.length) this.fireballs = []
@@ -220,14 +224,14 @@ export class Game {
             if (this.life < 6) {
               this.life++
               this.handleHearts()
-              this.audio = new Audio('src/assets/audio/heart.mp3')
+              this.audio = new Audio(HeartAudio)
               this.audio.play()
             }
             break
 
           default:
             this.score++
-            this.audio = new Audio('src/assets/audio/coin.mp3')
+            this.audio = new Audio(CoinAudio)
             this.audio.play()
             break
         }
@@ -293,7 +297,7 @@ export class Game {
 
     this.gameAudio.fadeOut()
     setTimeout(() => {
-      this.audio = new Audio('src/assets/audio/game_over.mp3')
+      this.audio = new Audio(GameOverAudio)
       this.audio.play()
       this.audio.fadeIn()
     }, 1500)

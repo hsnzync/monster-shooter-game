@@ -17,6 +17,7 @@ export class Audio {
       src: [this.path],
       loop: this.hasLoop,
       volume: this.volume,
+      html5: true,
     })
 
     this.audio.play()

@@ -3,7 +3,7 @@ import { Game } from '../game'
 import { GameObject } from '../game-object'
 import { Audio } from '../utils/audio'
 import { Fireball } from './projectiles/fireball'
-
+import FireAudio from '../assets/audio/fire.mp3'
 export class Player extends GameObject {
   public speedX: number
   public speedY: number
@@ -60,7 +60,7 @@ export class Player extends GameObject {
     const fireballs = Game.init().fireballs
     fireballs.push(new Fireball(this.posX, this.posY))
 
-    this.audio = new Audio('src/assets/audio/fire.mp3')
+    this.audio = new Audio(FireAudio)
     this.audio.play()
   }
 

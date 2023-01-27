@@ -10,7 +10,10 @@ const stylesHandler = 'style-loader'
 const config = {
   entry: './src/index.ts',
   output: {
+    filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
+    assetModuleFilename: 'assets/[hash][ext][query]',
+    clean: true,
   },
   devServer: {
     open: true,
@@ -41,8 +44,16 @@ const config = {
         use: [stylesHandler, 'css-loader', 'sass-loader'],
       },
       {
-        test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
-        type: 'asset',
+        test: /\.(eot|svg|png|jpg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(mp3|wav)$/i,
+        type: 'asset/resource',
       },
 
       // Add your rules for custom modules here
