@@ -6,6 +6,8 @@
 
 A web browser game built with Typescript using the Object Oriented Programming principles. This game has been developed using the possibilities that Javascript offers, such as DOM manipulation and using only [HowlerJS](https://github.com/goldfire/howler.js#documentation) for game sounds. All graphics are from [Itch.io](https://itch.io).
 
+[🚀 This game is fully playable](https://monster-shooter-game.vercel.app/)
+
 The following patterns/techniques are included in the game:
 
 - Singleton
