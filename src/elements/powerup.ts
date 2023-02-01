@@ -1,6 +1,6 @@
 import { GameObject } from '../game-object'
 
-type Powerups = 'special' | 'coin' | 'heart'
+export type Powerups = 'special' | 'coin' | 'heart'
 export class Powerup extends GameObject {
   public name: string
   constructor(name: Powerups) {
@@ -9,7 +9,7 @@ export class Powerup extends GameObject {
   }
 
   public update(): void {
-    this.posX = this.posX -= 3
+    this.posX -= 3
     this.elementWindowCol()
     this.windowYCol()
     this.draw()

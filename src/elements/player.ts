@@ -8,7 +8,6 @@ export class Player extends GameObject {
   public speedX: number
   public speedY: number
   public cooldown: number = 0
-  private observers: Observer[] = []
   private audio: Audio
 
   constructor() {
@@ -30,8 +29,8 @@ export class Player extends GameObject {
       this.cooldown = this.cooldown - 1
     }
 
-    this.posX = this.posX + this.speedX
-    this.posY = this.posY + this.speedY
+    this.posX += this.speedX
+    this.posY += this.speedY
 
     if (this.posX >= window.innerWidth) {
       this.posX = 0
@@ -43,7 +42,7 @@ export class Player extends GameObject {
 
   private windowCol(): void {
     if (this.posX + this.element.clientWidth > this.game.clientWidth) {
-      this.posX && this.posY == 300
+      this.posX && this.posY === 300
       this.speedX *= 0
     }
 
@@ -67,7 +66,7 @@ export class Player extends GameObject {
   private handleKeyDown(event: KeyboardEvent): void {
     switch (event.code) {
       case 'ArrowUp':
-        this.speedY = -2
+        this.speedY -= 2
         break
       case 'ArrowDown':
         this.speedY = 2

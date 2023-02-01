@@ -9,7 +9,7 @@ export class Fireball extends GameObject {
   }
 
   public update(): void {
-    this.posX = this.posX += 2
+    this.posX += 2
     this.element.style.transform = `translate(${this.posX}px, ${this.posY}px)`
   }
 

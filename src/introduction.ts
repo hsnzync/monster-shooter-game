@@ -1,6 +1,6 @@
 import { Game } from './game'
 import { Audio, Overlay } from './utils'
-import { texts } from './assets/texts'
+import { texts } from './constants/texts'
 import './assets/scss/main.scss'
 
 export class Introduction {
@@ -48,14 +48,16 @@ export class Introduction {
     this.intro.appendChild(this.tutorialArrowKeys)
     this.intro.appendChild(this.tutorialSpaceKeys)
 
-    setInterval(() => {
-      if (this.stylesCounter <= 1) {
-        this.stylesCounter = this.stylesCounter + 0.1
-      }
+    const intervalId = setInterval(() => {
+      this.stylesCounter += 0.1
       this.description.style.opacity = `${this.stylesCounter}`
       this.mission.style.opacity = `${this.stylesCounter}`
       this.tutorialArrowKeys.style.opacity = `${this.stylesCounter}`
       this.tutorialSpaceKeys.style.opacity = `${this.stylesCounter}`
+
+      if (this.stylesCounter >= 1) {
+        clearInterval(intervalId)
+      }
     }, 300)
 
     setTimeout(() => {

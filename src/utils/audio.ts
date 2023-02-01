@@ -1,12 +1,12 @@
 import { Howl } from 'howler'
 
 export class Audio {
-  private path: string
-  private hasLoop: boolean
-  private volume: number
+  public path: string
+  private hasLoop: boolean = false
+  private volume: number = 0.5
   private audio: Howl
 
-  constructor(path: string, hasLoop: boolean = false, volume: number = 0.5) {
+  constructor(path: string, hasLoop?: boolean, volume?: number) {
     this.path = path
     this.hasLoop = hasLoop
     this.volume = volume

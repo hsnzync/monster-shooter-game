@@ -1,18 +1,23 @@
 {
+  "compilerOptions": {
+    "module": "es6",
+    "target": "es2021",
+    "importHelpers": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+        "@/*": ["./src/*"]
+    },
+    "types": [
+      "jest"
+    ],
+  },
+  "files": ["src/index.ts"],
   "include": [
     "src/**/*.ts",
   ],
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
-    "module": "es6",
-    "target": "es5",
-    "allowJs": true,
-    "moduleResolution": "node"
-  },
-  "files": ["src/index.ts"],
-  "baseUrl": ".",
-  "paths": {
-      "@/*": ["./*"]
-  }
+  "exclude": ["node_modules"]
 }

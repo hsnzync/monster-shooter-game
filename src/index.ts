@@ -1,6 +1,6 @@
 import { Introduction } from './introduction'
 import { Audio, Overlay } from './utils'
-import { texts } from './assets/texts'
+import { texts } from './constants/texts'
 import Background from './assets/img/start-background.gif'
 import StartAudio from './assets/audio/start.mp3'
 import './assets/scss/main.scss'
@@ -53,11 +53,13 @@ export class Start {
 
     this.container.style.backgroundImage = `url(${Background})`
 
-    setInterval(() => {
-      if (this.titleCounter < 1) {
-        this.titleCounter = this.titleCounter + 0.2
-      }
+    const intervalId = setInterval(() => {
+      this.titleCounter += 0.2
       this.title.style.opacity = `${this.titleCounter}`
+
+      if (this.titleCounter >= 1) {
+        clearInterval(intervalId)
+      }
     }, 300)
 
     setTimeout(() => {

@@ -2,9 +2,9 @@ import { Observer } from './observer/observer'
 import { Player, Powerup } from './elements'
 import { Ghost, Slime, Eye, Skeleton } from './elements/monsters'
 import { GameObject } from './game-object'
-import { Fireball, Doom } from './elements/projectiles'
+import { Fireball } from './elements/projectiles'
 import { Audio, Overlay, Collision } from './utils'
-import { texts } from './assets/texts'
+import { texts } from './constants/texts'
 import Background from './assets/img/background.png'
 import HitSound from './assets/audio/player_hit.mp3'
 import MonsterHitSound from './assets/audio/monster_hit.mp3'
@@ -48,6 +48,7 @@ export class Game {
   public constructor() {
     this.setup()
     this.gameLoop()
+    console.log(CountDownAudio)
   }
 
   public static init() {
@@ -138,13 +139,13 @@ export class Game {
     this.container.appendChild(this.gameStartCounter)
     this.audio = new Audio(CountDownAudio)
 
-    const interval = setInterval(() => {
+    const intervalId = setInterval(() => {
       if (this.startcounter !== 0) {
         this.gameStartCounter.innerHTML = this.startcounter as unknown as string
         this.startcounter--
         this.audio.play()
       } else {
-        clearInterval(interval)
+        clearInterval(intervalId)
         this.gameStartCounter.remove()
         this.start()
       }
@@ -185,7 +186,7 @@ export class Game {
     if (!this.powerups.includes(heart)) {
       setTimeout(() => {
         this.powerups.push(new Powerup('heart'))
-      }, 35000)
+      }, 30000)
     }
 
     if (!this.powerups.includes(coin)) {

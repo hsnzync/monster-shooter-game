@@ -1,14 +1,14 @@
 export abstract class GameObject {
   public posY: number
   public posX: number
+  public speedX: number
 
   protected windowMaxPosY: number
   protected windowMinPosY: number
   protected startPosY: number
   protected startPosX: number
-  protected element: HTMLElement
-  protected speedX: number
   protected speedY: number
+  protected element: HTMLElement
   protected game: any = document.getElementsByTagName('game')[0]
   protected wall: any = document.getElementsByTagName('wall')[0]
 

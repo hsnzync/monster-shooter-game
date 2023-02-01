@@ -10,9 +10,11 @@ export class Overlay {
   }
 
   public show(): void {
-    setInterval(() => {
-      if (this.counter < 1) {
-        this.counter = this.counter + 0.2
+    const intervalId = setInterval(() => {
+      this.counter += 0.2
+
+      if (this.counter >= 1) {
+        clearInterval(intervalId)
       }
       this.overlay.style.opacity = `${this.counter}`
     }, 300)
