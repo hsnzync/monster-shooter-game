@@ -66,10 +66,10 @@ export class Player extends GameObject {
   private handleKeyDown(event: KeyboardEvent): void {
     switch (event.code) {
       case 'ArrowUp':
-        this.speedY -= 2
+        this.speedY = -3
         break
       case 'ArrowDown':
-        this.speedY = 2
+        this.speedY = 3
         break
       case 'Space':
         if (this.cooldown === 0) {

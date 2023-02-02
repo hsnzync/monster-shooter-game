@@ -7,7 +7,7 @@ export class fastBehavior implements MoveBehavior {
 
   constructor(enemy: GameObject) {
     this.enemy = enemy
-    this.speedX = 4.5
+    this.speedX = 5
   }
 
   public performUpdate() {
