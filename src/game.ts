@@ -1,11 +1,20 @@
-import { Observer } from './observer/observer'
 import { Player, Powerup } from './elements'
 import { Ghost, Slime, Eye, Skeleton } from './elements/monsters'
 import { GameObject } from './game-object'
 import { Fireball } from './elements/projectiles'
-import { Audio, Overlay, Collision } from './utils'
+import { Observer } from './observer/observer'
+import { Audio, Collision } from './utils'
+import { Engine, Scene } from './engine/engine'
+import { Renderer } from './engine/renderer'
+import { Assets } from './engine/assets'
+import { configureField } from './engine/field'
+import {
+  FIELD_WIDTH,
+  FIELD_HEIGHT,
+  WALL_HEIGHT,
+  TOPBAR_HEIGHT,
+} from './engine/config'
 import { texts } from './constants/texts'
-import Background from './assets/img/background.png'
 import HitSound from './assets/audio/player_hit.mp3'
 import MonsterHitSound from './assets/audio/monster_hit.mp3'
 import CountDownAudio from './assets/audio/countdown.mp3'
@@ -14,91 +23,102 @@ import PowerupAudio from './assets/audio/special.mp3'
 import HeartAudio from './assets/audio/heart.mp3'
 import CoinAudio from './assets/audio/coin.mp3'
 import GameOverAudio from './assets/audio/game_over.mp3'
-import './assets/scss/main.scss'
 
-export class Game {
+type Phase = 'countdown' | 'playing' | 'gameover'
+
+// Background.png (384x240) scaled to cover the field height (x2.5) and tiled.
+const BG_TILE_W = 960
+const BG_TILE_H = 600
+
+/**
+ * The gameplay scene. Kept as a Singleton (as before) so `Player` can reach the
+ * shared fireball list and countdown state. The gameplay rules, timings and
+ * spawn logic are unchanged from the DOM version — only rendering (canvas
+ * instead of DOM elements) and collision (numeric bounds instead of
+ * `getBoundingClientRect`) have changed.
+ */
+export class Game implements Scene {
   private static game: Game
-  private animationId: any
 
   public score: number = 0
   private life: number = 6
 
-  private container: HTMLElement
-  private wall: HTMLElement
-  private topbar: HTMLElement
-  private scoreBoard: HTMLElement
-  private healthBar: HTMLElement
-  private overlay: Overlay
+  private engine!: Engine
+  private assets!: Assets
 
-  private player: Player
+  private player!: Player
   private monsters: GameObject[] = []
   public fireballs: Fireball[] = []
-
   private powerups: Powerup[] = []
 
   private backgroundPosX: number = 0
-  private audio: Audio
-  private gameAudio: Audio
+  private audio!: Audio
+  private gameAudio!: Audio
   private observers: Observer[] = []
 
-  private gameStartCounter: HTMLElement
   public startcounter: number = 3
+  private countdownValue: number | null = null
+  private phase: Phase = 'countdown'
+
   private highestScore: number | null = 0
+  private gameOverTime: number = 0
 
-  public constructor() {
-    this.setup()
-    this.gameLoop()
-    console.log(CountDownAudio)
-  }
+  private countdownInterval: ReturnType<typeof setInterval> | null = null
+  private timeouts: ReturnType<typeof setTimeout>[] = []
+  private keyHandler = (e: KeyboardEvent) => this.onKeyDown(e)
 
-  public static init() {
+  public static init(): Game {
     if (!this.game) {
       this.game = new Game()
     }
     return this.game
   }
 
-  private setup(): void {
-    this.container = document.getElementsByTagName('game')[0] as HTMLElement
-    this.container.style.backgroundImage = `url(${Background})`
+  // --- Scene lifecycle -------------------------------------------------------
 
-    this.wall = document.createElement('wall')
-    this.topbar = document.createElement('topbar')
-    this.scoreBoard = document.createElement('scoreboard')
-    this.healthBar = document.createElement('healthbar')
-    this.container.appendChild(this.wall)
+  public enter(engine: Engine): void {
+    this.engine = engine
+    this.assets = Assets.get()
 
-    this.startCountDown()
+    configureField(FIELD_WIDTH, FIELD_HEIGHT, WALL_HEIGHT)
+
+    this.score = 0
+    this.life = 6
+    this.startcounter = 3
+    this.phase = 'countdown'
+    this.backgroundPosX = 0
+    this.monsters = []
+    this.fireballs = []
+    this.powerups = []
+
     this.player = new Player()
-    this.topbar.appendChild(this.scoreBoard)
-    this.topbar.appendChild(this.healthBar)
-    this.container.appendChild(this.topbar)
+
+    document.addEventListener('keydown', this.keyHandler)
+    this.startCountDown()
   }
 
-  private gameLoop(): void {
-    // start the animation of the game loop
-    this.animationId = requestAnimationFrame(() => this.gameLoop())
+  public exit(): void {
+    document.removeEventListener('keydown', this.keyHandler)
+    this.clearTimers()
+  }
 
-    this.scoreBoard.innerHTML = `Score: ${this.score}`
+  // --- Update ---------------------------------------------------------------
+
+  public update(): void {
+    if (this.phase === 'gameover') return
+
     this.backgroundPosX = this.backgroundPosX - 1
-    this.container.style.backgroundPosition = `${this.backgroundPosX}px 0px`
-
     this.player.update()
 
     this.handlePickups()
+
     this.monsters.map((monster) => {
       monster.update()
 
       // Player hits a monster
-      if (
-        Collision.checkCollision(
-          this.player.getBoundingClientRect(),
-          monster.getBoundingClientRect()
-        )
-      ) {
+      if (Collision.checkCollision(this.player.bounds(), monster.bounds())) {
         monster.reset()
         this.life--
-        this.handleHearts()
         this.audio = new Audio(HitSound)
         this.audio.play()
       }
@@ -106,12 +126,7 @@ export class Game {
       this.fireballs.map((fireball) => {
         fireball.update()
 
-        if (
-          Collision.checkCollision(
-            fireball.getBoundingClientRect(),
-            monster.getBoundingClientRect()
-          )
-        ) {
+        if (Collision.checkCollision(fireball.bounds(), monster.bounds())) {
           fireball.removeElement()
           this.score++
           monster.reset()
@@ -119,11 +134,15 @@ export class Game {
           this.audio = new Audio(MonsterHitSound)
           this.audio.play()
 
-          let fireballIndex = this.fireballs.indexOf(fireball)
+          const fireballIndex = this.fireballs.indexOf(fireball)
           this.fireballs.splice(fireballIndex, 1)
         }
       })
     })
+
+    // Drop fireballs that have flown off the right edge (they were never
+    // removed in the DOM version and simply leaked; here we reclaim them).
+    this.fireballs = this.fireballs.filter((f) => f.posX <= FIELD_WIDTH)
 
     if (this.life === 0) {
       this.gameOver()
@@ -135,27 +154,24 @@ export class Game {
   }
 
   private startCountDown(): void {
-    this.gameStartCounter = document.createElement('h2')
-    this.container.appendChild(this.gameStartCounter)
     this.audio = new Audio(CountDownAudio)
 
-    const intervalId = setInterval(() => {
+    this.countdownInterval = setInterval(() => {
       if (this.startcounter !== 0) {
-        this.gameStartCounter.innerHTML = this.startcounter as unknown as string
+        this.countdownValue = this.startcounter
         this.startcounter--
         this.audio.play()
       } else {
-        clearInterval(intervalId)
-        this.gameStartCounter.remove()
+        if (this.countdownInterval) clearInterval(this.countdownInterval)
+        this.countdownInterval = null
+        this.countdownValue = null
         this.start()
       }
     }, 1500)
   }
 
   private start(): void {
-    this.topbar.appendChild(this.scoreBoard)
-    this.topbar.appendChild(this.healthBar)
-    this.container.appendChild(this.topbar)
+    this.phase = 'playing'
 
     this.gameAudio = new Audio(WorldAudio, true)
     this.gameAudio.play()
@@ -165,7 +181,8 @@ export class Game {
     this.setPowerups()
   }
 
-  // Create instances of game elements and add them to the game
+  // Schedule the periodic power-up spawns (unchanged timings: coin 10s,
+  // special 20s, heart 30s).
   private setPowerups(): void {
     const special = this.powerups.filter(
       (p) => p.name === 'special'
@@ -178,33 +195,28 @@ export class Game {
     ) as unknown as Powerup
 
     if (!this.powerups.includes(special)) {
-      setTimeout(() => {
-        this.powerups.push(new Powerup('special'))
-      }, 20000)
+      this.timeouts.push(
+        setTimeout(() => this.powerups.push(new Powerup('special')), 20000)
+      )
     }
 
     if (!this.powerups.includes(heart)) {
-      setTimeout(() => {
-        this.powerups.push(new Powerup('heart'))
-      }, 30000)
+      this.timeouts.push(
+        setTimeout(() => this.powerups.push(new Powerup('heart')), 30000)
+      )
     }
 
     if (!this.powerups.includes(coin)) {
-      setTimeout(() => {
-        this.powerups.push(new Powerup('coin'))
-      }, 10000)
+      this.timeouts.push(
+        setTimeout(() => this.powerups.push(new Powerup('coin')), 10000)
+      )
     }
   }
 
   private handlePickups(): void {
     this.powerups.map((item) => {
       item.update()
-      if (
-        Collision.checkCollision(
-          this.player.getBoundingClientRect(),
-          item.getBoundingClientRect()
-        )
-      ) {
+      if (Collision.checkCollision(this.player.bounds(), item.bounds())) {
         item.removeElement()
         this.powerups.pop()
         this.setPowerups()
@@ -224,7 +236,6 @@ export class Game {
           case 'heart':
             if (this.life < 6) {
               this.life++
-              this.handleHearts()
               this.audio = new Audio(HeartAudio)
               this.audio.play()
             }
@@ -245,63 +256,132 @@ export class Game {
     this.observers.map((observer) => observer.notify())
   }
 
-  private handleHearts(): void {
-    switch (this.life) {
-      case 6:
-        this.healthBar.style.backgroundPositionY = `-336px;`
-        break
-      case 5:
-        this.healthBar.style.backgroundPositionY = `-280px`
-        break
-      case 4:
-        this.healthBar.style.backgroundPositionY = `-224px`
-        break
-      case 3:
-        this.healthBar.style.backgroundPositionY = `-168px`
-        break
-      case 2:
-        this.healthBar.style.backgroundPositionY = `-112px`
-        break
-      case 1:
-        this.healthBar.style.backgroundPositionY = `-56px`
-        break
-      case 0:
-        this.healthBar.style.backgroundPositionY = `0px`
-        break
+  // --- Render ---------------------------------------------------------------
+
+  public render(r: Renderer, now: number): void {
+    if (this.phase === 'gameover') {
+      this.renderGameOver(r, now)
+      return
+    }
+
+    this.renderBackground(r)
+    this.renderObjects(r, now)
+    this.renderTopbar(r)
+    this.renderCountdown(r)
+  }
+
+  private renderBackground(r: Renderer): void {
+    const ctx = r.ctx
+    const offset = ((this.backgroundPosX % BG_TILE_W) + BG_TILE_W) % BG_TILE_W
+    for (let x = -offset; x < r.width; x += BG_TILE_W) {
+      ctx.drawImage(this.assets.background, x, 0, BG_TILE_W, BG_TILE_H)
     }
   }
 
-  private gameOver(): void {
-    cancelAnimationFrame(this.animationId)
-    this.container.innerHTML = ''
+  private renderObjects(r: Renderer, now: number): void {
+    const ctx = r.ctx
+    for (const monster of this.monsters) {
+      this.assets
+        .sprite(monster.name)
+        .draw(ctx, monster.posX, monster.posY, now)
+    }
+    for (const powerup of this.powerups) {
+      this.assets
+        .sprite(powerup.name)
+        .draw(ctx, powerup.posX, powerup.posY, now)
+    }
+    for (const fireball of this.fireballs) {
+      this.assets
+        .sprite('fireball')
+        .draw(ctx, fireball.posX, fireball.posY, now)
+    }
+    this.assets
+      .sprite('player')
+      .draw(ctx, this.player.posX, this.player.posY, now)
+  }
 
-    this.overlay = new Overlay()
-    this.overlay.show()
+  private renderTopbar(r: Renderer): void {
+    r.rect(0, 0, r.width, TOPBAR_HEIGHT, '#248c76')
+
+    // Health meter: meter.png is a 25x47 vertical strip of 7 states, drawn at
+    // 8x scale. Higher `life` shows a state lower in the strip.
+    const src = this.assets.meter
+    r.ctx.drawImage(src, 0, 7 * this.life, 25, 5, 40, 30, 200, 40)
+
+    // Score, right-aligned in the topbar.
+    const scoreText = `Score: ${this.score}`
+    const size = r.fitFontSize(scoreText, 320, 24)
+    r.text(scoreText, r.width - 40, TOPBAR_HEIGHT / 2, size, {
+      align: 'right',
+      baseline: 'middle',
+      color: 'rgb(30, 222, 126)',
+      shadowY: 4,
+    })
+  }
+
+  private renderCountdown(r: Renderer): void {
+    if (this.countdownValue === null) return
+    const label = String(this.countdownValue)
+    const size = r.fitFontSize(label, r.width * 0.5, 96)
+    r.text(label, r.width / 2, r.height / 2, size, {
+      align: 'center',
+      baseline: 'middle',
+      shadowY: 10,
+    })
+  }
+
+  private renderGameOver(r: Renderer, now: number): void {
+    const clamp = (v: number, lo: number, hi: number) =>
+      Math.min(hi, Math.max(lo, v))
+    if (!this.gameOverTime) this.gameOverTime = now
+    const alpha = clamp((now - this.gameOverTime) / 1000, 0, 1)
+
+    r.clear('#000000')
+
+    const title = texts.game.game_over.title.toUpperCase()
+    const titleSize = r.fitFontSize(title, r.width - 120, 56)
+    r.text(title, r.width / 2, r.height * 0.42, titleSize, {
+      align: 'center',
+      baseline: 'middle',
+      alpha,
+      shadowY: 8,
+    })
+    r.text(
+      texts.game.game_over.description.toUpperCase(),
+      r.width / 2,
+      r.height * 0.56,
+      14,
+      {
+        align: 'center',
+        baseline: 'middle',
+        alpha,
+      }
+    )
+    r.text(
+      `${texts.game.game_over.score}${this.score}`.toUpperCase(),
+      r.width / 2,
+      r.height * 0.63,
+      14,
+      { align: 'center', baseline: 'middle', alpha }
+    )
+  }
+
+  // --- Game over ------------------------------------------------------------
+
+  private gameOver(): void {
+    this.phase = 'gameover'
+    this.gameOverTime = 0
+    this.clearTimers()
     this.setScore()
 
-    document.addEventListener('keydown', (e: KeyboardEvent) =>
-      this.onKeyDown(e)
+    if (this.gameAudio) this.gameAudio.fadeOut()
+    this.timeouts.push(
+      setTimeout(() => {
+        this.audio = new Audio(GameOverAudio)
+        this.audio.play()
+        this.audio.fadeIn()
+      }, 1500)
     )
-    const gameOver: HTMLElement = document.createElement('game-over')
-    const gameOverText: HTMLElement = document.createElement('h3')
-    const restartText: HTMLElement = document.createElement('span')
-    const scoreText: HTMLElement = document.createElement('span')
-
-    gameOverText.innerHTML = texts.game.game_over.title
-    restartText.innerHTML = texts.game.game_over.description
-    scoreText.innerHTML = texts.game.game_over.score + this.score
-    gameOver.appendChild(gameOverText)
-    gameOver.appendChild(restartText)
-    gameOver.appendChild(scoreText)
-
-    this.container.appendChild(gameOver)
-
-    this.gameAudio.fadeOut()
-    setTimeout(() => {
-      this.audio = new Audio(GameOverAudio)
-      this.audio.play()
-      this.audio.fadeIn()
-    }, 1500)
   }
 
   private setScore(): void {
@@ -318,8 +398,17 @@ export class Game {
     }
   }
 
+  private clearTimers(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval)
+      this.countdownInterval = null
+    }
+    this.timeouts.forEach((t) => clearTimeout(t))
+    this.timeouts = []
+  }
+
   private onKeyDown(event: KeyboardEvent): void {
-    if (event.code === 'KeyR') {
+    if (event.code === 'KeyR' && this.phase === 'gameover') {
       window.location.reload()
     }
   }
