@@ -106,14 +106,15 @@ export class Assets {
       Object.entries(SPRITE_GIFS).map(async ([name, url]) => {
         const box = spriteBox(name)
         const decoded = decodeGif(await fetchBuffer(url))
-        // The boss art is small within a large frame; crop-and-fill so it reads
-        // as a genuinely large enemy.
+        // The boss art is small within a large, padded frame; crop away the
+        // padding and scale the art up to fit the box (contain => whole sprite
+        // stays visible, never cut off).
         const crop = name === 'doom'
         const sprite = buildSprite(
           decoded.frames,
           box.w,
           box.h,
-          crop ? 'cover' : 'contain',
+          'contain',
           box.flip,
           crop
         )

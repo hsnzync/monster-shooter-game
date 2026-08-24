@@ -1,4 +1,4 @@
-import { Player, Powerup, Boss } from './elements'
+import { Player, Powerup, Boss, BossProjectile } from './elements'
 import {
   Ghost,
   Slime,
@@ -42,7 +42,17 @@ const BG_TILE_H = 600
 // Frames of invulnerability after the boss touches the player (~1.5s at 60fps).
 const BOSS_HIT_COOLDOWN = 90
 
+// Speed of a boss projectile (px/frame).
+const BOSS_SHOT_SPEED = 5
+
 type SpawnKind = 'bat' | 'frog' | 'lizard'
+type MonsterType = new () => GameObject & { notify(): void }
+
+const SPAWN_TYPES: Record<SpawnKind, MonsterType> = {
+  bat: Bat,
+  frog: Frog,
+  lizard: Lizard,
+}
 
 /**
  * Progressive difficulty schedule: as the score crosses each threshold, the
@@ -84,9 +94,12 @@ export class Game implements Scene {
 
   private player!: Player
   private monsters: GameObject[] = []
+  /** The normal enemy line-up, used to restore monsters after a boss fight. */
+  private roster: MonsterType[] = []
   public fireballs: Fireball[] = []
   private powerups: Powerup[] = []
   private boss: Boss | null = null
+  private bossShots: BossProjectile[] = []
   private stageIndex: number = 0
   private playerHitCooldown: number = 0
 
@@ -127,9 +140,11 @@ export class Game implements Scene {
     this.phase = 'countdown'
     this.backgroundPosX = 0
     this.monsters = []
+    this.roster = []
     this.fireballs = []
     this.powerups = []
     this.boss = null
+    this.bossShots = []
     this.stageIndex = 0
     this.playerHitCooldown = 0
 
@@ -151,7 +166,8 @@ export class Game implements Scene {
 
     if (this.playerHitCooldown > 0) this.playerHitCooldown--
 
-    // Expose the player's position for homing enemies.
+    // Expose the player's position for homing enemies and the boss.
+    arena.playerX = this.player.posX
     arena.playerY = this.player.posY
 
     this.backgroundPosX = this.backgroundPosX + 1
@@ -202,6 +218,10 @@ export class Game implements Scene {
     const boss = this.boss
     boss.update()
 
+    // The boss fires aimed shots during its hover phase.
+    if (boss.consumeShot()) this.fireBossShot(boss)
+    this.updateBossShots()
+
     // Fireballs chip away at the boss's health.
     this.fireballs = this.fireballs.filter((fireball) => {
       if (Collision.checkCollision(fireball.bounds(), boss.bounds())) {
@@ -215,23 +235,68 @@ export class Game implements Scene {
     if (boss.defeated) {
       this.score += 15
       this.boss = null
+      this.bossShots = []
       this.playSound(PowerupAudio)
+      // The normal enemies return once the boss is down.
+      this.monsters = this.roster.map((Type) => new Type())
       return
     }
 
-    // Touching the boss hurts, but only once per invulnerability window.
+    // Touching the boss (e.g. during a charge) hurts, once per window.
     if (
       this.playerHitCooldown === 0 &&
       Collision.checkCollision(this.player.bounds(), boss.bounds())
     ) {
-      this.life--
-      this.playerHitCooldown = BOSS_HIT_COOLDOWN
-      this.playSound(HitSound)
+      this.damagePlayerByBoss()
     }
   }
 
-  /** Apply every difficulty stage the score has reached, in order. */
+  /** Spawn a boss projectile aimed at the player's current position. */
+  private fireBossShot(boss: Boss): void {
+    const dx = this.player.posX - boss.centerX
+    const dy = this.player.posY - boss.midY
+    const dist = Math.hypot(dx, dy) || 1
+    this.bossShots.push(
+      new BossProjectile(
+        boss.centerX,
+        boss.midY,
+        (dx / dist) * BOSS_SHOT_SPEED,
+        (dy / dist) * BOSS_SHOT_SPEED
+      )
+    )
+  }
+
+  private updateBossShots(): void {
+    this.bossShots = this.bossShots.filter((shot) => {
+      shot.update()
+
+      if (Collision.checkCollision(shot.bounds(), this.player.bounds())) {
+        this.damagePlayerByBoss()
+        return false
+      }
+      // Drop shots that leave the field.
+      return (
+        shot.posX > -40 &&
+        shot.posX < FIELD_WIDTH + 40 &&
+        shot.posY > -40 &&
+        shot.posY < FIELD_HEIGHT + 40
+      )
+    })
+  }
+
+  private damagePlayerByBoss(): void {
+    if (this.playerHitCooldown > 0) return
+    this.life--
+    this.playerHitCooldown = BOSS_HIT_COOLDOWN
+    this.playSound(HitSound)
+  }
+
+  /**
+   * Apply every difficulty stage the score has reached, in order. Paused while
+   * a boss is on screen so the boss fight stays a one-on-one encounter.
+   */
   private processDifficulty(): void {
+    if (this.phase !== 'playing' || this.boss) return
     while (
       this.stageIndex < DIFFICULTY.length &&
       this.score >= DIFFICULTY[this.stageIndex].score
@@ -245,21 +310,19 @@ export class Game implements Scene {
   }
 
   private spawnMonster(kind: SpawnKind): void {
-    switch (kind) {
-      case 'bat':
-        this.monsters.push(new Bat())
-        break
-      case 'frog':
-        this.monsters.push(new Frog())
-        break
-      case 'lizard':
-        this.monsters.push(new Lizard())
-        break
-    }
+    const Type = SPAWN_TYPES[kind]
+    // Add to the roster so it returns after any boss fight, and to the field now.
+    this.roster.push(Type)
+    this.monsters.push(new Type())
   }
 
   private spawnBoss(): void {
-    if (!this.boss) this.boss = new Boss()
+    if (this.boss) return
+    // Clear the field: the boss fights the player alone.
+    this.monsters = []
+    this.fireballs = []
+    this.bossShots = []
+    this.boss = new Boss()
   }
 
   private playSound(src: string): void {
@@ -290,7 +353,8 @@ export class Game implements Scene {
     this.gameAudio = new Audio(WorldAudio, true)
     this.gameAudio.play()
 
-    this.monsters.push(new Ghost(), new Slime(), new Eye(), new Skeleton())
+    this.roster = [Ghost, Slime, Eye, Skeleton]
+    this.monsters = this.roster.map((Type) => new Type())
 
     this.setPowerups()
   }
@@ -380,9 +444,33 @@ export class Game implements Scene {
 
     this.renderBackground(r)
     this.renderObjects(r, now)
+    this.renderBossShots(r)
     this.renderTopbar(r)
     this.renderBossBar(r)
     this.renderCountdown(r)
+  }
+
+  private renderBossShots(r: Renderer): void {
+    const ctx = r.ctx
+    for (const shot of this.bossShots) {
+      const cx = shot.posX + shot.width / 2
+      const cy = shot.posY + shot.height / 2
+      const rad = shot.width / 2
+      ctx.save()
+      ctx.fillStyle = 'rgba(226, 59, 235, 0.35)'
+      ctx.beginPath()
+      ctx.arc(cx, cy, rad + 4, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.fillStyle = '#e23beb'
+      ctx.beginPath()
+      ctx.arc(cx, cy, rad, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.fillStyle = '#ffd6ff'
+      ctx.beginPath()
+      ctx.arc(cx, cy, rad * 0.4, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+    }
   }
 
   private renderBackground(r: Renderer): void {

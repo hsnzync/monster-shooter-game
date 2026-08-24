@@ -1,5 +1,6 @@
 export { Player } from './player'
 export { Powerup } from './powerup'
 export { Boss } from './boss'
+export { BossProjectile } from './boss-projectile'
 export * from './projectiles'
 export * from './monsters'

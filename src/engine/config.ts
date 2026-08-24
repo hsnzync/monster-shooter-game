@@ -40,8 +40,11 @@ export const SPRITE_BOX: Record<string, SpriteBox> = {
   bat: { w: 72, h: 82, flip: true },
   frog: { w: 72, h: 82, flip: true },
   lizard: { w: 78, h: 82, flip: true },
-  // Boss (art is cropped from its frame and scaled up to fill this box).
-  doom: { w: 200, h: 180, flip: true },
+  // Boss: kept modest so the player can still dodge its charges. Its art is
+  // cropped from the padded frame and scaled up (see the asset loader).
+  doom: { w: 120, h: 110, flip: true },
+  // Boss projectile (drawn as an orb, no sprite sheet).
+  bossshot: { w: 22, h: 22, flip: false },
 }
 
 export function spriteBox(name: string): SpriteBox {

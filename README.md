@@ -24,8 +24,9 @@ The following patterns/techniques are included in the game:
   flight, hopping and player-homing — each a Strategy implementation).
 - A score-driven difficulty ramp that introduces new enemies and speeds every
   enemy up (via the Observer pattern) as you progress.
-- Periodic boss fights: a large enemy with its own health bar that takes several
-  hits to defeat.
+- Periodic one-on-one boss fights (the normal enemies clear off): a boss with
+  its own health bar that hovers, charges at the player and fires aimed
+  projectiles, and takes several hits to defeat.
 
 ## Table of Contents
 
