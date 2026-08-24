@@ -9,6 +9,6 @@ export class Fireball extends GameObject {
   }
 
   public update(): void {
-    this.posX += 3
+    this.posX += 10
   }
 }

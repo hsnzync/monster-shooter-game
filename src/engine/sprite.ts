@@ -27,13 +27,26 @@ function pixelsToCanvas(
  * flipping horizontally (the original mirrored monsters/powerups with
  * `scaleX(-1)`).
  */
+interface Rect {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
 function fitFrame(
   src: HTMLCanvasElement,
   boxW: number,
   boxH: number,
   fit: Fit,
-  flip: boolean
+  flip: boolean,
+  srcRect?: Rect
 ): HTMLCanvasElement {
+  const sx = srcRect ? srcRect.x : 0
+  const sy = srcRect ? srcRect.y : 0
+  const sw = srcRect ? srcRect.w : src.width
+  const sh = srcRect ? srcRect.h : src.height
+
   const canvas = document.createElement('canvas')
   canvas.width = boxW
   canvas.height = boxH
@@ -42,10 +55,10 @@ function fitFrame(
 
   const scale =
     fit === 'cover'
-      ? Math.max(boxW / src.width, boxH / src.height)
-      : Math.min(boxW / src.width, boxH / src.height)
-  const dw = src.width * scale
-  const dh = src.height * scale
+      ? Math.max(boxW / sw, boxH / sh)
+      : Math.min(boxW / sw, boxH / sh)
+  const dw = sw * scale
+  const dh = sh * scale
   const dx = (boxW - dw) / 2
   const dy = (boxH - dh) / 2
 
@@ -53,8 +66,33 @@ function fitFrame(
     ctx.translate(boxW, 0)
     ctx.scale(-1, 1)
   }
-  ctx.drawImage(src, dx, dy, dw, dh)
+  ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh)
   return canvas
+}
+
+/**
+ * Union of the opaque pixels across raw frames, in source pixel coordinates.
+ * Used to crop away a sprite's transparent padding before scaling it up (so a
+ * small sprite in a large frame, e.g. the boss, can fill its display box).
+ */
+function unionOpaqueSourceRect(frames: GifFrame[], alphaThreshold = 16): Rect {
+  let left = Infinity
+  let top = Infinity
+  let right = -1
+  let bottom = -1
+  for (const f of frames) {
+    for (let y = 0; y < f.height; y++) {
+      for (let x = 0; x < f.width; x++) {
+        if (f.pixels[(y * f.width + x) * 4 + 3] < alphaThreshold) continue
+        if (x < left) left = x
+        if (x > right) right = x
+        if (y < top) top = y
+        if (y > bottom) bottom = y
+      }
+    }
+  }
+  if (right < 0) return { x: 0, y: 0, w: frames[0].width, h: frames[0].height }
+  return { x: left, y: top, w: right - left + 1, h: bottom - top + 1 }
 }
 
 export class AnimatedSprite {
@@ -150,13 +188,17 @@ export function buildSprite(
   boxW: number,
   boxH: number,
   fit: Fit = 'contain',
-  flip = false
+  flip = false,
+  crop = false
 ): AnimatedSprite {
+  // When cropping, scale the sprite's actual pixels (not its padded frame) to
+  // fill the box, using one shared source rect so the animation doesn't jitter.
+  const srcRect = crop ? unionOpaqueSourceRect(frames) : undefined
   const canvases: HTMLCanvasElement[] = []
   const delays: number[] = []
   for (const frame of frames) {
     const full = pixelsToCanvas(frame.pixels, frame.width, frame.height)
-    canvases.push(fitFrame(full, boxW, boxH, fit, flip))
+    canvases.push(fitFrame(full, boxW, boxH, fit, flip, srcRect))
     delays.push(frame.delayMs)
   }
   return new AnimatedSprite(canvases, delays)

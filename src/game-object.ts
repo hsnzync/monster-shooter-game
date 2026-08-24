@@ -22,6 +22,9 @@ export abstract class GameObject {
   public posY: number
   public posX: number
   public speedX: number
+  /** Current vertical "lane" the object oscillates around (used by movement
+   *  patterns like sine/hop); kept in sync with the spawn/reset position. */
+  public baseY: number
   /** Sprite key, also used as the object's type name (e.g. 'ghost', 'coin'). */
   public name: string
   public readonly width: number
@@ -51,6 +54,7 @@ export abstract class GameObject {
     this.startPosX = Field.width
 
     this.posY = this.startPosY
+    this.baseY = this.startPosY
     this.posX = this.startPosX - this.width
     this.speedX = 0
     this.speedY = 0
@@ -113,5 +117,6 @@ export abstract class GameObject {
     this.posY =
       Math.floor(Math.random() * (this.windowMaxPosY - this.windowMinPosY)) +
       this.windowMinPosY
+    this.baseY = this.posY
   }
 }

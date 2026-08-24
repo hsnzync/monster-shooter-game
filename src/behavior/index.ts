@@ -1,3 +1,6 @@
 export { fastBehavior } from './fast-behavior'
 export { slowBehavior } from './slow-behavior'
-export { MoveBehavior } from './move-behavior'
+export { SineBehavior } from './sine-behavior'
+export { HopBehavior } from './hop-behavior'
+export { HomingBehavior } from './homing-behavior'
+export { MoveBehavior, SPEED_BOOST } from './move-behavior'

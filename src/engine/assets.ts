@@ -31,6 +31,10 @@ import GhostGif from '../assets/img/ghost.gif'
 import SlimeGif from '../assets/img/slime.gif'
 import SkeletonGif from '../assets/img/skeleton.gif'
 import EyeGif from '../assets/img/eye.gif'
+import BatGif from '../assets/img/bat.gif'
+import FrogGif from '../assets/img/frog.gif'
+import LizardGif from '../assets/img/lizard.gif'
+import DoomGif from '../assets/img/doom.gif'
 import FireballGif from '../assets/img/fireball.gif'
 import CoinGif from '../assets/img/coin.gif'
 import PowerupGif from '../assets/img/powerup.gif'
@@ -46,6 +50,10 @@ const SPRITE_GIFS: Record<string, string> = {
   slime: SlimeGif,
   skeleton: SkeletonGif,
   eye: EyeGif,
+  bat: BatGif,
+  frog: FrogGif,
+  lizard: LizardGif,
+  doom: DoomGif,
   fireball: FireballGif,
   coin: CoinGif,
   special: PowerupGif,
@@ -98,12 +106,16 @@ export class Assets {
       Object.entries(SPRITE_GIFS).map(async ([name, url]) => {
         const box = spriteBox(name)
         const decoded = decodeGif(await fetchBuffer(url))
+        // The boss art is small within a large frame; crop-and-fill so it reads
+        // as a genuinely large enemy.
+        const crop = name === 'doom'
         const sprite = buildSprite(
           decoded.frames,
           box.w,
           box.h,
-          'contain',
-          box.flip
+          crop ? 'cover' : 'contain',
+          box.flip,
+          crop
         )
         this.sprites.set(name, sprite)
         registerHitbox(name, sprite)

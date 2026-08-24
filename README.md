@@ -18,6 +18,15 @@ The following patterns/techniques are included in the game:
 - Inheritance
 - Polymorphism
 
+### Gameplay
+
+- Seven enemy types with distinct movement patterns (steady drift, sine-wave
+  flight, hopping and player-homing — each a Strategy implementation).
+- A score-driven difficulty ramp that introduces new enemies and speeds every
+  enemy up (via the Observer pattern) as you progress.
+- Periodic boss fights: a large enemy with its own health bar that takes several
+  hits to defeat.
+
 ## Table of Contents
 
 - [Getting Started](#getting-started)

@@ -1,5 +1,13 @@
-import { Player, Powerup } from './elements'
-import { Ghost, Slime, Eye, Skeleton } from './elements/monsters'
+import { Player, Powerup, Boss } from './elements'
+import {
+  Ghost,
+  Slime,
+  Eye,
+  Skeleton,
+  Bat,
+  Frog,
+  Lizard,
+} from './elements/monsters'
 import { GameObject } from './game-object'
 import { Fireball } from './elements/projectiles'
 import { Observer } from './observer/observer'
@@ -8,6 +16,7 @@ import { Engine, Scene } from './engine/engine'
 import { Renderer } from './engine/renderer'
 import { Assets } from './engine/assets'
 import { configureField } from './engine/field'
+import { arena } from './engine/arena'
 import {
   FIELD_WIDTH,
   FIELD_HEIGHT,
@@ -30,12 +39,39 @@ type Phase = 'countdown' | 'playing' | 'gameover'
 const BG_TILE_W = 960
 const BG_TILE_H = 600
 
+// Frames of invulnerability after the boss touches the player (~1.5s at 60fps).
+const BOSS_HIT_COOLDOWN = 90
+
+type SpawnKind = 'bat' | 'frog' | 'lizard'
+
+/**
+ * Progressive difficulty schedule: as the score crosses each threshold, the
+ * game introduces a new enemy type, speeds every enemy up (via the Observer
+ * pattern), and/or sends in a boss. Processed once, in order.
+ */
+interface DifficultyStage {
+  score: number
+  spawn?: SpawnKind
+  speedUp?: boolean
+  boss?: boolean
+}
+
+const DIFFICULTY: DifficultyStage[] = [
+  { score: 10, spawn: 'bat' },
+  { score: 20, spawn: 'frog', speedUp: true },
+  { score: 35, spawn: 'lizard' },
+  { score: 50, boss: true },
+  { score: 70, spawn: 'bat', speedUp: true },
+  { score: 90, spawn: 'frog' },
+  { score: 110, spawn: 'lizard', speedUp: true },
+  { score: 140, boss: true, speedUp: true },
+]
+
 /**
  * The gameplay scene. Kept as a Singleton (as before) so `Player` can reach the
- * shared fireball list and countdown state. The gameplay rules, timings and
- * spawn logic are unchanged from the DOM version — only rendering (canvas
- * instead of DOM elements) and collision (numeric bounds instead of
- * `getBoundingClientRect`) have changed.
+ * shared fireball list and countdown state. On top of the original rules it now
+ * layers extra enemy types with distinct movement patterns, a score-driven
+ * difficulty ramp, and periodic boss fights.
  */
 export class Game implements Scene {
   private static game: Game
@@ -50,6 +86,9 @@ export class Game implements Scene {
   private monsters: GameObject[] = []
   public fireballs: Fireball[] = []
   private powerups: Powerup[] = []
+  private boss: Boss | null = null
+  private stageIndex: number = 0
+  private playerHitCooldown: number = 0
 
   private backgroundPosX: number = 0
   private audio!: Audio
@@ -90,6 +129,9 @@ export class Game implements Scene {
     this.monsters = []
     this.fireballs = []
     this.powerups = []
+    this.boss = null
+    this.stageIndex = 0
+    this.playerHitCooldown = 0
 
     this.player = new Player()
 
@@ -107,50 +149,122 @@ export class Game implements Scene {
   public update(): void {
     if (this.phase === 'gameover') return
 
+    if (this.playerHitCooldown > 0) this.playerHitCooldown--
+
+    // Expose the player's position for homing enemies.
+    arena.playerY = this.player.posY
+
     this.backgroundPosX = this.backgroundPosX + 1
     this.player.update()
 
     this.handlePickups()
 
+    // Move enemies and check player collisions.
     this.monsters.map((monster) => {
       monster.update()
-
-      // Player hits a monster
       if (Collision.checkCollision(this.player.bounds(), monster.bounds())) {
         monster.reset()
         this.life--
-        this.audio = new Audio(HitSound)
-        this.audio.play()
+        this.playSound(HitSound)
       }
-
-      this.fireballs.map((fireball) => {
-        fireball.update()
-
-        if (Collision.checkCollision(fireball.bounds(), monster.bounds())) {
-          fireball.removeElement()
-          this.score++
-          monster.reset()
-
-          this.audio = new Audio(MonsterHitSound)
-          this.audio.play()
-
-          const fireballIndex = this.fireballs.indexOf(fireball)
-          this.fireballs.splice(fireballIndex, 1)
-        }
-      })
     })
 
-    // Drop fireballs that have flown off the right edge (they were never
-    // removed in the DOM version and simply leaked; here we reclaim them).
+    // Move fireballs once per frame (independent of the enemy count).
+    this.fireballs.map((fireball) => fireball.update())
+
+    // Fireball vs. enemy: a hit removes the fireball, scores and respawns it.
+    this.fireballs = this.fireballs.filter((fireball) => {
+      for (const monster of this.monsters) {
+        if (Collision.checkCollision(fireball.bounds(), monster.bounds())) {
+          this.score++
+          monster.reset()
+          this.playSound(MonsterHitSound)
+          return false
+        }
+      }
+      return true
+    })
+
+    this.updateBoss()
+
+    // Drop fireballs that have flown off the right edge.
     this.fireballs = this.fireballs.filter((f) => f.posX <= FIELD_WIDTH)
 
-    if (this.life === 0) {
+    this.processDifficulty()
+
+    if (this.life <= 0) {
       this.gameOver()
     }
+  }
 
-    if (this.score === 20) {
-      this.notifyAllObservers()
+  private updateBoss(): void {
+    if (!this.boss) return
+    const boss = this.boss
+    boss.update()
+
+    // Fireballs chip away at the boss's health.
+    this.fireballs = this.fireballs.filter((fireball) => {
+      if (Collision.checkCollision(fireball.bounds(), boss.bounds())) {
+        boss.hit()
+        this.playSound(MonsterHitSound)
+        return false
+      }
+      return true
+    })
+
+    if (boss.defeated) {
+      this.score += 15
+      this.boss = null
+      this.playSound(PowerupAudio)
+      return
     }
+
+    // Touching the boss hurts, but only once per invulnerability window.
+    if (
+      this.playerHitCooldown === 0 &&
+      Collision.checkCollision(this.player.bounds(), boss.bounds())
+    ) {
+      this.life--
+      this.playerHitCooldown = BOSS_HIT_COOLDOWN
+      this.playSound(HitSound)
+    }
+  }
+
+  /** Apply every difficulty stage the score has reached, in order. */
+  private processDifficulty(): void {
+    while (
+      this.stageIndex < DIFFICULTY.length &&
+      this.score >= DIFFICULTY[this.stageIndex].score
+    ) {
+      const stage = DIFFICULTY[this.stageIndex]
+      if (stage.speedUp) this.notifyAllObservers()
+      if (stage.spawn) this.spawnMonster(stage.spawn)
+      if (stage.boss) this.spawnBoss()
+      this.stageIndex++
+    }
+  }
+
+  private spawnMonster(kind: SpawnKind): void {
+    switch (kind) {
+      case 'bat':
+        this.monsters.push(new Bat())
+        break
+      case 'frog':
+        this.monsters.push(new Frog())
+        break
+      case 'lizard':
+        this.monsters.push(new Lizard())
+        break
+    }
+  }
+
+  private spawnBoss(): void {
+    if (!this.boss) this.boss = new Boss()
+  }
+
+  private playSound(src: string): void {
+    this.audio = new Audio(src)
+    this.audio.play()
   }
 
   private startCountDown(): void {
@@ -267,6 +381,7 @@ export class Game implements Scene {
     this.renderBackground(r)
     this.renderObjects(r, now)
     this.renderTopbar(r)
+    this.renderBossBar(r)
     this.renderCountdown(r)
   }
 
@@ -280,6 +395,9 @@ export class Game implements Scene {
 
   private renderObjects(r: Renderer, now: number): void {
     const ctx = r.ctx
+    if (this.boss) {
+      this.assets.sprite('doom').draw(ctx, this.boss.posX, this.boss.posY, now)
+    }
     for (const monster of this.monsters) {
       this.assets
         .sprite(monster.name)
@@ -321,6 +439,25 @@ export class Game implements Scene {
       color: 'rgb(30, 222, 126)',
       shadowY: 3,
     })
+  }
+
+  private renderBossBar(r: Renderer): void {
+    if (!this.boss) return
+    const barW = 360
+    const barH = 12
+    const x = (r.width - barW) / 2
+    const y = TOPBAR_HEIGHT + 14
+    const frac = Math.max(0, this.boss.health / this.boss.maxHealth)
+
+    r.text('BOSS', r.width / 2, y - 6, 12, {
+      align: 'center',
+      baseline: 'bottom',
+      color: '#ff5a5a',
+      shadowY: 2,
+    })
+    r.rect(x - 2, y - 2, barW + 4, barH + 4, 'rgba(0,0,0,0.55)')
+    r.rect(x, y, barW, barH, '#3a0d0d')
+    r.rect(x, y, barW * frac, barH, '#e23b3b')
   }
 
   private renderCountdown(r: Renderer): void {

@@ -36,6 +36,12 @@ export const SPRITE_BOX: Record<string, SpriteBox> = {
   special: { w: 75, h: 90, flip: true },
   coin: { w: 75, h: 90, flip: true },
   heart: { w: 75, h: 90, flip: true },
+  // Extra enemy types (art already in the repo).
+  bat: { w: 72, h: 82, flip: true },
+  frog: { w: 72, h: 82, flip: true },
+  lizard: { w: 78, h: 82, flip: true },
+  // Boss (art is cropped from its frame and scaled up to fill this box).
+  doom: { w: 200, h: 180, flip: true },
 }
 
 export function spriteBox(name: string): SpriteBox {
