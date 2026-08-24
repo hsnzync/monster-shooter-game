@@ -1,58 +1,46 @@
-@import 'home';
-@import 'introduction';
-@import 'game-over';
-@import 'topbar';
-@import 'objects';
-@import 'utils';
+// The game now renders entirely to a single <canvas>; the old per-screen and
+// per-object element styles are gone. All that remains is the page chrome and
+// centering the canvas host (<game>) on the animated gradient backdrop.
 
 body {
-  font-family: 'Menlo', Arial, Helvetica, sans-serif;
-  color: white;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
   overflow: hidden;
-  margin: 0px;
-  padding: 0px;
+  color: white;
+  font-family: 'Press Start 2P', 'Menlo', Arial, Helvetica, sans-serif;
   background: linear-gradient(-45deg, #4e1c9e, #23479b, #23a6d5, #23d5ab);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
-  height: 100vh;
-  font-family: 'Press Start 2P', cursive;
+}
 
-  game {
-    width: 800px;
-    height: 600px;
-    overflow: hidden;
-    margin: auto;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+game {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 800px;
+  height: 600px;
+  transform: translateY(-50%);
+  overflow: hidden;
+  border-radius: 10px;
+  image-rendering: pixelated;
+
+  canvas {
+    display: block;
     border-radius: 10px;
-
-    image-rendering: pixelated;
-    background-repeat: repeat;
-    background-position: bottom;
-    background-size: cover;
-
-    h2 {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 50%;
-      bottom: 0;
-      transform: translateY(-50%);
-      text-align: center;
-      font-size: 14vh;
-      height: fit-content;
-      margin: 0;
-      text-shadow: 0px 10px 0px rgba(25, 51, 37, 1);
-    }
-    wall {
-      width: 100%;
-      height: 40%;
-      display: block;
-      position: absolute;
-      top: 0;
-    }
   }
 }

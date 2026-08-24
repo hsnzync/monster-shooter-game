@@ -4,7 +4,9 @@
 
 <img width="400" alt="start-screen" src="https://user-images.githubusercontent.com/12610474/214084008-28ad144d-266e-40f3-8155-f2cea1814ffa.png">&nbsp;&nbsp;&nbsp;&nbsp;<img width="400" alt="game-screen" src="https://user-images.githubusercontent.com/12610474/214084210-e4710183-ee17-4236-b0f2-a065fb43ab22.png">
 
-A web browser game built with Typescript using the Object Oriented Programming principles. This game has been developed using the possibilities that Javascript offers, such as DOM manipulation and using only [HowlerJS](https://github.com/goldfire/howler.js#documentation) for game sounds. All graphics are from [Itch.io](https://itch.io).
+A web browser game built with Typescript using the Object Oriented Programming principles. The game renders entirely on a single HTML5 `<canvas>` — including a small dependency-free GIF decoder that plays the animated sprites frame-by-frame on the canvas — and uses [HowlerJS](https://github.com/goldfire/howler.js#documentation) for game sounds. All graphics are from [Itch.io](https://itch.io).
+
+> **Note:** This game was originally built with DOM manipulation (one HTML element per sprite), which became CPU-heavy over time. It has since been refactored to a single canvas with one render loop, keeping the gameplay, screens and visuals identical while removing the per-element layout/composite overhead.
 
 #### [🚀 This game is fully playable](https://monster-shooter-game.vercel.app/) (mobile/touchscreen is not supported yet)
 
@@ -15,6 +17,16 @@ The following patterns/techniques are included in the game:
 - Strategy pattern
 - Inheritance
 - Polymorphism
+
+### Gameplay
+
+- Seven enemy types with distinct movement patterns (steady drift, sine-wave
+  flight, hopping and player-homing — each a Strategy implementation).
+- A score-driven difficulty ramp that introduces new enemies and speeds every
+  enemy up (via the Observer pattern) as you progress.
+- Periodic one-on-one boss fights (the normal enemies clear off): a boss with
+  its own health bar that hovers, charges at the player and fires aimed
+  projectiles, and takes several hits to defeat.
 
 ## Table of Contents
 

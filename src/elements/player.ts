@@ -1,9 +1,10 @@
-import { Observer } from '../observer/observer'
 import { Game } from '../game'
 import { GameObject } from '../game-object'
+import { Field } from '../engine/field'
 import { Audio } from '../utils/audio'
 import { Fireball } from './projectiles/fireball'
 import FireAudio from '../assets/audio/fire.mp3'
+
 export class Player extends GameObject {
   public speedX: number
   public speedY: number
@@ -20,6 +21,8 @@ export class Player extends GameObject {
       this.handleKeyUp(e)
     )
 
+    this.speedX = 0
+    this.speedY = 0
     this.posY = 300
     this.posX = 60
   }
@@ -37,20 +40,19 @@ export class Player extends GameObject {
     }
 
     this.windowCol()
-    this.element.style.transform = `translate(${this.posX}px, ${this.posY}px)`
   }
 
   private windowCol(): void {
-    if (this.posX + this.element.clientWidth > this.game.clientWidth) {
-      this.posX && this.posY === 300
-      this.speedX *= 0
+    // Right edge collision detection
+    if (this.posX + this.width > Field.width) {
+      this.speedX = 0
     }
 
     this.windowYCol()
 
     // Left wall collision detection
     if (this.posX < 30) {
-      this.speedX *= 0
+      this.speedX = 0
       this.posX = 30
     }
   }
