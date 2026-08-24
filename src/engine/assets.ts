@@ -8,6 +8,23 @@
 import { decodeGif } from './gif'
 import { AnimatedSprite, buildSprite, StreamingSpriteBuilder } from './sprite'
 import { spriteBox, FIELD_WIDTH, FIELD_HEIGHT } from './config'
+import { setHitbox } from './hitbox'
+
+// Trim the tight opaque box slightly (per side) so contact must be genuine.
+const HITBOX_SHRINK = 0.06
+
+/** Derive a snug collision box from a sprite's visible pixels and register it. */
+function registerHitbox(name: string, sprite: AnimatedSprite): void {
+  const b = sprite.opaqueBounds()
+  const insetX = (b.right - b.left) * HITBOX_SHRINK
+  const insetY = (b.bottom - b.top) * HITBOX_SHRINK
+  setHitbox(name, {
+    left: b.left + insetX,
+    top: b.top + insetY,
+    right: b.right - insetX,
+    bottom: b.bottom - insetY,
+  })
+}
 
 import PlayerGif from '../assets/img/player.gif'
 import GhostGif from '../assets/img/ghost.gif'
@@ -81,10 +98,15 @@ export class Assets {
       Object.entries(SPRITE_GIFS).map(async ([name, url]) => {
         const box = spriteBox(name)
         const decoded = decodeGif(await fetchBuffer(url))
-        this.sprites.set(
-          name,
-          buildSprite(decoded.frames, box.w, box.h, 'contain', box.flip)
+        const sprite = buildSprite(
+          decoded.frames,
+          box.w,
+          box.h,
+          'contain',
+          box.flip
         )
+        this.sprites.set(name, sprite)
+        registerHitbox(name, sprite)
       })
     )
 
@@ -97,7 +119,9 @@ export class Assets {
       heartBox.flip
     )
     decodeGif(await fetchBuffer(HeartGif), heartBuilder.accept)
-    this.sprites.set('heart', heartBuilder.build())
+    const heartSprite = heartBuilder.build()
+    this.sprites.set('heart', heartSprite)
+    registerHitbox('heart', heartSprite)
 
     const bgBuilder = new StreamingSpriteBuilder(
       FIELD_WIDTH,

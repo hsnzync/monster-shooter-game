@@ -7,7 +7,7 @@ export class slowBehavior implements MoveBehavior {
 
   constructor(enemy: GameObject) {
     this.enemy = enemy
-    this.speedX = 4
+    this.speedX = 2
   }
 
   public performUpdate() {

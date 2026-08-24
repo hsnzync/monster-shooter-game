@@ -11,8 +11,8 @@ export const FIELD_HEIGHT = 600
 // The old `wall` element was 40% of the field height and bounded enemy spawns.
 export const WALL_HEIGHT = FIELD_HEIGHT * 0.4 // 240
 
-// The old `topbar` was a fixed 100px band holding the score and health meter.
-export const TOPBAR_HEIGHT = 100
+// Slim HUD band holding the score and health meter (translucent, drawn on top).
+export const TOPBAR_HEIGHT = 64
 
 /**
  * Per-sprite display box (in px) and horizontal flip, matching `objects.scss`:

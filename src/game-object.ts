@@ -1,5 +1,6 @@
 import { Field } from './engine/field'
 import { spriteBox } from './engine/config'
+import { getHitbox } from './engine/hitbox'
 
 export interface Bounds {
   left: number
@@ -85,6 +86,17 @@ export abstract class GameObject {
 
   /** Axis-aligned bounds used for collision detection. */
   public bounds(): Bounds {
+    // Prefer the tight, art-hugging hitbox registered for this sprite; fall
+    // back to the full display box when none is loaded (e.g. in unit tests).
+    const inset = getHitbox(this.name)
+    if (inset) {
+      return {
+        left: this.posX + inset.left,
+        top: this.posY + inset.top,
+        right: this.posX + inset.right,
+        bottom: this.posY + inset.bottom,
+      }
+    }
     return {
       left: this.posX,
       top: this.posY,

@@ -101,6 +101,43 @@ export class AnimatedSprite {
   ): void {
     ctx.drawImage(this.frameAt(now), Math.round(x), Math.round(y))
   }
+
+  /**
+   * Tight bounding box of the visible (opaque) pixels across every frame, in
+   * the sprite's local box coordinates. Used to build a collision box that
+   * hugs the character art rather than its transparent padding.
+   */
+  public opaqueBounds(alphaThreshold = 16): {
+    left: number
+    top: number
+    right: number
+    bottom: number
+  } {
+    let left = this.width
+    let top = this.height
+    let right = 0
+    let bottom = 0
+    let found = false
+
+    for (const frame of this.frames) {
+      const ctx = frame.getContext('2d') as CanvasRenderingContext2D
+      const { data } = ctx.getImageData(0, 0, frame.width, frame.height)
+      for (let y = 0; y < frame.height; y++) {
+        for (let x = 0; x < frame.width; x++) {
+          if (data[(y * frame.width + x) * 4 + 3] < alphaThreshold) continue
+          found = true
+          if (x < left) left = x
+          if (x > right) right = x
+          if (y < top) top = y
+          if (y > bottom) bottom = y
+        }
+      }
+    }
+
+    if (!found)
+      return { left: 0, top: 0, right: this.width, bottom: this.height }
+    return { left, top, right: right + 1, bottom: bottom + 1 }
+  }
 }
 
 /**

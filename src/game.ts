@@ -107,7 +107,7 @@ export class Game implements Scene {
   public update(): void {
     if (this.phase === 'gameover') return
 
-    this.backgroundPosX = this.backgroundPosX - 1
+    this.backgroundPosX = this.backgroundPosX + 1
     this.player.update()
 
     this.handlePickups()
@@ -301,21 +301,25 @@ export class Game implements Scene {
   }
 
   private renderTopbar(r: Renderer): void {
-    r.rect(0, 0, r.width, TOPBAR_HEIGHT, '#248c76')
+    // Slim, lightly translucent band so the scrolling world shows through.
+    r.rect(0, 0, r.width, TOPBAR_HEIGHT, '#248c76', 0.6)
 
-    // Health meter: meter.png is a 25x47 vertical strip of 7 states, drawn at
-    // 8x scale. Higher `life` shows a state lower in the strip.
+    // Health meter: meter.png is a 25x47 vertical strip of 7 states. Higher
+    // `life` shows a state lower in the strip.
+    const meterW = 150
+    const meterH = 30
+    const meterY = (TOPBAR_HEIGHT - meterH) / 2
     const src = this.assets.meter
-    r.ctx.drawImage(src, 0, 7 * this.life, 25, 5, 40, 30, 200, 40)
+    r.ctx.drawImage(src, 0, 7 * this.life, 25, 5, 24, meterY, meterW, meterH)
 
     // Score, right-aligned in the topbar.
     const scoreText = `Score: ${this.score}`
-    const size = r.fitFontSize(scoreText, 320, 24)
-    r.text(scoreText, r.width - 40, TOPBAR_HEIGHT / 2, size, {
+    const size = r.fitFontSize(scoreText, 260, 18)
+    r.text(scoreText, r.width - 24, TOPBAR_HEIGHT / 2, size, {
       align: 'right',
       baseline: 'middle',
       color: 'rgb(30, 222, 126)',
-      shadowY: 4,
+      shadowY: 3,
     })
   }
 
